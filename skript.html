@@ -1,0 +1,2419 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Praktikum Informatik - C++</title>
+    <style>
+        /* Styles preserved and organized */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #3a3a3a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --accent: #4a9eff;
+            --accent-hover: #6bb0ff;
+            --border: #404040;
+            --code-bg: #252525;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        nav {
+            background-color: var(--bg-secondary);
+            border-bottom: 2px solid var(--border);
+            position: sticky; top: 0; z-index: 1000; padding: 1rem 2rem;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        nav h1 { color: var(--accent); margin:0 1rem 0 0; font-size:1.25rem; }
+        .nav-buttons { display:flex; gap:1rem; flex-wrap:wrap; }
+        .nav-btn {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.25s ease;
+        }
+        .nav-btn:hover { background-color: var(--accent); color: white; }
+        .nav-btn.active { background-color: var(--accent); color: white; }
+
+        .container { display:flex; min-height: calc(100vh - 80px); }
+        .sidebar {
+            width: 300px; background-color: var(--bg-secondary); padding: 2rem;
+            border-right: 2px solid var(--border); overflow-y:auto; position:sticky;
+            top:80px; height: calc(100vh - 80px);
+        }
+        .sidebar h2 { color: var(--accent); margin-bottom:1rem; font-size:1.1rem; }
+        .sidebar ul { list-style:none; }
+        .sidebar li { margin-bottom:0.5rem; }
+        .sidebar a {
+            color: var(--text-secondary); text-decoration:none; display:block; padding:0.5rem;
+            border-radius:4px; transition:all 0.2s ease;
+        }
+        .sidebar a:hover { background-color: var(--bg-tertiary); color: var(--accent); }
+
+        .content { flex:1; padding:2rem; max-width:1200px; }
+        .section { display:none; animation:fadeIn 0.3s ease-in; }
+        .section.active { display:block; }
+        @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+
+        h1,h2,h3,h4 { color:var(--accent); margin:2rem 0 1rem 0; }
+        h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.2rem}
+        p,ul,ol,pre,table { margin-bottom:1rem; color:var(--text-primary); }
+        pre { background:var(--code-bg); border:1px solid var(--border); border-radius:4px; padding:1rem; overflow:auto; }
+        code { font-family: 'Courier New', monospace; color:#a8e6cf; }
+
+        table { width:100%; border-collapse:collapse; margin:1rem 0; background:var(--bg-secondary); }
+        th,td { border:1px solid var(--border); padding:0.75rem; text-align:left; }
+        th { background:var(--bg-tertiary); color:var(--accent); }
+        .image-placeholder { background:var(--bg-secondary); border:2px dashed var(--border); padding:2rem; text-align:center; margin:1rem 0; border-radius:4px; }
+        .image-placeholder p { color:var(--text-secondary); font-style:italic; }
+
+        .glossary-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(280px,1fr)); gap:1rem; margin-top:2rem; }
+        .glossary-card { background:var(--bg-secondary); border:1px solid var(--border); padding:1.5rem; border-radius:4px; transition:all 0.2s ease; }
+        .glossary-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+        .glossary-card h3 { margin-top:0; font-size:1.1rem; }
+
+        @media (max-width:968px) {
+            .container { flex-direction:column; }
+            .sidebar { width:100%; height:auto; position:relative; top:0; }
+            nav { flex-direction:column; align-items:flex-start; gap:0.75rem; padding:1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div style="display:flex;align-items:center;">
+            <h1>Praktikum Informatik - C++</h1>
+            <div style="margin-left:1rem; color:var(--text-secondary); font-size:0.95rem;">Übersicht & Aufgaben</div>
+        </div>
+        <div class="nav-buttons" role="navigation" aria-label="Main Navigation">
+            <button class="nav-btn active" onclick="showMain(event,'glossar')">Glossar</button>
+            <button class="nav-btn" onclick="showMain(event,'skript')">Skript</button>
+            <button class="nav-btn" onclick="showMain(event,'aufgabenstellung')">Aufgabenstellung</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar"></aside>
+        <main class="content" id="mainContent"></main>
+    </div>
+
+    <script>
+        /*
+         * Restored the full original long texts (in exact format and order as they appeared originally)
+         * The content functions below return the full original HTML strings for each section.
+         * Navigation uses inline handlers that call showSection and return false so links behave like SPA.
+         */
+
+        const content = {
+            glossar: {
+                title: 'Glossar',
+                sections: [
+                    {
+                        id: 'skript-willkommen',
+                        title: 'Willkommen'
+                    },
+                    {
+                        id: 'skript-grundlagen',
+                        title: 'Grundlagen C++'
+                    },
+                    {
+                        id: 'skript-namespaces',
+                        title: 'Namensbereiche'
+                    },
+                    {
+                        id: 'skript-klassen',
+                        title: 'Klassen'
+                    },
+                    {
+                        id: 'skript-vererbung',
+                        title: 'Vererbung'
+                    },
+                    {
+                        id: 'skript-smartpointer',
+                        title: 'Smart Pointer'
+                    },
+                    {
+                        id: 'skript-container',
+                        title: 'Container Klassen'
+                    },
+                    {
+                        id: 'skript-exceptions',
+                        title: 'Exception Handling'
+                    },
+                    {
+                        id: 'skript-templates',
+                        title: 'Templates'
+                    },
+                    {
+                        id: 'skript-io',
+                        title: 'Ein- und Ausgabe'
+                    },
+                    {
+                        id: 'skript-typecast',
+                        title: 'Typumwandlung'
+                    }
+                ]
+            },
+            aufgaben: {
+                title: 'Aufgabenstellung',
+                sections: [
+                    { id: 'aufgabe-motivation', title: 'Motivation' },
+                    { id: 'aufgabe-ziel', title: 'Zielaufgabe' },
+                    { id: 'aufgabe-hinweise', title: 'Hinweise zur Implementierung' },
+                    { id: 'aufgabe-block1', title: 'Aufgabenblock 1' },
+                    { id: 'aufgabe-block2', title: 'Aufgabenblock 2' }
+                ]
+            }
+        };
+
+        let currentMain = 'glossar';
+        let currentSection = '';
+
+        function showMain(ev, main) {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            if (ev && ev.currentTarget) ev.currentTarget.classList.add('active');
+            currentMain = main;
+            currentSection = '';
+            updateSidebar();
+            updateContent();
+            updateHash();
+        }
+
+        function updateSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (currentMain === 'glossar') {
+                sidebar.innerHTML = `
+                    <h2>Inhaltsverzeichnis</h2>
+                    <div>
+                        <h3 style="color: var(--accent); font-size: 1.05rem; margin-top:1rem;">Skript</h3>
+                        <ul>
+                            ${content.glossar.sections.map(item => `<li><a href="#" onclick="showSection('${item.id}'); return false;">${item.title}</a></li>`).join('')}
+                        </ul>
+                        <h3 style="color: var(--accent); font-size: 1.05rem; margin-top:1rem;">Aufgabenstellung</h3>
+                        <ul>
+                            ${content.aufgaben.sections.map(item => `<li><a href="#" onclick="showSection('${item.id}'); return false;">${item.title}</a></li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (currentMain === 'skript') {
+                sidebar.innerHTML = `
+                    <h2>Skript Navigation</h2>
+                    <ul>
+                        ${content.glossar.sections.map(item => `<li><a href="#" onclick="showSection('${item.id}'); return false;">${item.title}</a></li>`).join('')}
+                    </ul>
+                `;
+            } else if (currentMain === 'aufgabenstellung') {
+                sidebar.innerHTML = `
+                    <h2>Aufgaben Navigation</h2>
+                    <ul>
+                        ${content.aufgaben.sections.map(item => `<li><a href="#" onclick="showSection('${item.id}'); return false;">${item.title}</a></li>`).join('')}
+                    </ul>
+                `;
+            }
+        }
+
+        function showSection(section) {
+            currentSection = section;
+            updateContent();
+            updateHash();
+            const main = document.getElementById('mainContent');
+            if (main) main.scrollTop = 0;
+        }
+
+        function updateContent() {
+            const mainContent = document.getElementById('mainContent');
+            if (currentMain === 'glossar' && !currentSection) {
+                mainContent.innerHTML = getGlossarContent();
+            } else if (currentSection) {
+                mainContent.innerHTML = getSectionContent(currentSection);
+            } else if (currentMain === 'skript') {
+                showSection(content.glossar.sections[0].id);
+            } else if (currentMain === 'aufgabenstellung') {
+                showSection(content.aufgaben.sections[0].id);
+            }
+        }
+
+        function updateHash() {
+            let newHash = `#${currentMain}`;
+            if (currentSection) newHash += `/${currentSection}`;
+            history.replaceState(null, '', newHash);
+        }
+
+        // --- Restored full original content functions (exact format and order) ---
+
+        function getGlossarContent() {
+            return `
+                <h1>Glossar - Praktikum Informatik</h1>
+                
+                <h2>Skript Inhalte</h2>
+                <div class="glossary-grid">
+                    <div class="glossary-card">
+                        <h3>Grundlagen C++</h3>
+                        <p>Lexikalische Konventionen, Datentypen, Ausdrücke, Anweisungen, Funktionen und Präprozessor</p>
+                        <a href="#" onclick="showSection('skript-grundlagen'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Namensbereiche</h3>
+                        <p>Namespaces zur Gruppierung von Deklarationen und Vermeidung von Namenskonflikten</p>
+                        <a href="#" onclick="showSection('skript-namespaces'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Klassen</h3>
+                        <p>Konstruktoren, Destruktoren, Konstante Instanzmethoden, Statische Klassenelemente</p>
+                        <a href="#" onclick="showSection('skript-klassen'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Vererbung</h3>
+                        <p>Zugriffsspezifizierer, Polymorphie, Abstrakte Klassen, Überladen von Methoden und Operatoren</p>
+                        <a href="#" onclick="showSection('skript-vererbung'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Smart Pointer</h3>
+                        <p>unique_ptr, shared_ptr, weak_ptr für automatische Speicherverwaltung</p>
+                        <a href="#" onclick="showSection('skript-smartpointer'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Container Klassen</h3>
+                        <p>vector, list, array, map und Iteratoren aus der STL</p>
+                        <a href="#" onclick="showSection('skript-container'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Exception Handling</h3>
+                        <p>try-catch-Blöcke, Eigene Exception-Klassen, Fehlerbehandlung</p>
+                        <a href="#" onclick="showSection('skript-exceptions'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Templates</h3>
+                        <p>Funktionen- und Klassentemplates für generische Programmierung</p>
+                        <a href="#" onclick="showSection('skript-templates'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 3rem;">Aufgabenstellung Inhalte</h2>
+                <div class="glossary-grid">
+                    <div class="glossary-card">
+                        <h3>Motivation</h3>
+                        <p>Überblick über die Praktikumsaufgabe und Lernziele</p>
+                        <a href="#" onclick="showSection('aufgabe-motivation'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Zielaufgabe</h3>
+                        <p>Verkehrssimulation mit Fahrzeugen, Wegen und Kreuzungen</p>
+                        <a href="#" onclick="showSection('aufgabe-ziel'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Aufgabenblock 1</h3>
+                        <p>Grundlagen: Fahrzeugklassen, Unterklassen, Operatorüberladung</p>
+                        <a href="#" onclick="showSection('aufgabe-block1'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                    <div class="glossary-card">
+                        <h3>Aufgabenblock 2</h3>
+                        <p>Erweiterung: Simulationsobjekte, Wege, Exceptions, Templates</p>
+                        <a href="#" onclick="showSection('aufgabe-block2'); return false;" style="color: var(--accent);">→ Mehr erfahren</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSectionContent(section) {
+            const sections = {
+                'skript-willkommen': getWillkommenContent,
+                'skript-grundlagen': getGrundlagenContent,
+                'skript-namespaces': getNamespacesContent,
+                'skript-klassen': getKlassenContent,
+                'skript-vererbung': getVererbungContent,
+                'skript-smartpointer': getSmartPointerContent,
+                'skript-container': getContainerContent,
+                'skript-exceptions': getExceptionsContent,
+                'skript-templates': getTemplatesContent,
+                'skript-io': getIOContent,
+                'skript-typecast': getTypecastContent,
+                'aufgabe-motivation': getAufgabeMotivationContent,
+                'aufgabe-ziel': getAufgabeZielContent,
+                'aufgabe-hinweise': getAufgabeHinweiseContent,
+                'aufgabe-block1': getAufgabeBlock1Content,
+                'aufgabe-block2': getAufgabeBlock2Content
+            };
+            if (sections[section]) return sections[section]();
+            return '<h1>Inhalt nicht gefunden</h1>';
+        }
+
+        function getWillkommenContent() {
+            return `
+                <h1>Willkommen zum Praktikum Informatik</h1>
+                
+                <h2>Übersicht der Themen</h2>
+                <ul>
+                    <li>Grundlagen der Programmiersprache C++</li>
+                    <li>Namensbereiche in C++</li>
+                    <li>Klassen
+                        <ul>
+                            <li>Übungsaufgaben zu Klassen</li>
+                        </ul>
+                    </li>
+                    <li>Vererbung
+                        <ul>
+                            <li>Übungsaufgaben zu Vererbung</li>
+                        </ul>
+                    </li>
+                    <li>Smart Pointer
+                        <ul>
+                            <li>Übungsaufgaben zu Smart Pointern</li>
+                        </ul>
+                    </li>
+                    <li>Container-Klassen
+                        <ul>
+                            <li>Übungsaufgaben zu Container-Klassen</li>
+                        </ul>
+                    </li>
+                    <li>Exception Handling
+                        <ul>
+                            <li>Übungsaufgaben zu Exception Handling</li>
+                        </ul>
+                    </li>
+                    <li>Templates</li>
+                    <li>Eingabeoperator</li>
+                    <li>Typumwandlung</li>
+                </ul>
+            `;
+        }
+
+        function getGrundlagenContent() {
+            return `
+                <h1>Grundlagen der Programmiersprache C++</h1>
+
+                <h2>Lexikalische Konventionen</h2>
+                <p>Einer der ersten Verarbeitungsschritte, die der Compiler durchführt ist die Zerlegung der Eingabe in sogenannte Token. Während die Eingabe aus einzelnen Buchstaben besteht, sind Token das Äquivalent zu Wörtern. In C++ gibt es die folgenden Token:</p>
+                <ul>
+                    <li>Bezeichner (Identifier)</li>
+                    <li>Schlüsselwort (Keyword)</li>
+                    <li>Literal</li>
+                    <li>Operator</li>
+                    <li>Trennzeichen (Separator)</li>
+                </ul>
+
+                <h3>Kommentare</h3>
+                <p>Ein Kommentar beginnt mit den Zeichen /* und endet mit */ und dient zum Erläutern und Beschreiben des Codes. Kommentare werden vom Compiler ignoriert.</p>
+                <pre><code>/*
+Diese Schreibweise für einen Kommentar ermöglicht es den Text
+über mehrere Zeilen zu verteilen.
+*/
+
+// auskommentierte Zeile
+int i; // Zähler</code></pre>
+
+                <h3>Bezeichner</h3>
+                <p>Ein Bezeichner ist eine beliebig lange Folge von Buchstaben und Ziffern, wobei das erste Zeichen allerdings ein Buchstabe sein muss. Zu den Buchstaben wird auch das Underscore-Zeichen "_" gerechnet. Bei Bezeichnern wird zwischen Groß- und Kleinschreibung unterschieden.</p>
+
+                <h3>Schlüsselwörter</h3>
+                <p>In C++ sind u.a. folgende Schlüsselwörter reserviert und nicht anderweitig benutzbar:</p>
+                <pre><code>alignof     const_cast   goto        public       typedef
+alignas     constexpr    friend      protected    try
+and         continue     if          register     typeid
+and_eq      decltype     inline      reinterpret_cast typename
+asm         default      int         return       union
+auto        delete       long        short        unsigned
+bitand      do           mutable     signed       using
+bitor       double       namespace   sizeof       virtual
+bool        dynamic_cast new         static       void
+break       else         noexcept    static_assert volatile
+case        enum         not         static_cast  wchar_t
+catch       explicit     not_eq      struct       while
+char        export       nullptr     switch       xor
+char16_t    false        or          this
+class       final        or_eq       thread_local
+compl       float        override    throw
+const       for          private     true</code></pre>
+
+                <h3>Literale</h3>
+                
+                <h4>Integer-Konstanten</h4>
+                <p>Bei Integer (ganzzahligen)-Konstanten gibt es folgende Erscheinungsformen:</p>
+                <ul>
+                    <li>Eine Zahl, die mit einer Ziffer ungleich 0 beginnt, ist eine Dezimalkonstante, z.B. 1234 oder 3990.</li>
+                    <li>Eine Zahl, die mit 0 beginnt, ist eine Oktalkonstante, z.B. 015 oder 0377.</li>
+                    <li>Eine Zahl, die mit 0x beginnt, ist eine Hexadezimalkonstante, z.B. 0xffff oder 0x5da7.</li>
+                </ul>
+
+                <h4>Zeichenkonstanten</h4>
+                <p>Ein Zeichen (character), eingeschlossen in einfache Hochkommata ('x') ist eine Zeichenkonstante, nämlich der numerische Wert des Zeichens in der internen Codierung des Rechners (meistens ASCII). Beispiel: '0' hat den numerischen Wert 48 bei ASCII-Codierung.</p>
+
+                <h2>Datentypen</h2>
+                
+                <h3>Fundamentale Datentypen</h3>
+                
+                <h4>Zeichen (character)</h4>
+                <pre><code>char               // Zeichen (als Zahl 1Byte mit oder ohne Vorzeichen, je nach Compiler)
+signed char        // Zeichen (als Zahl 1Byte mit Vorzeichen: -128 ... +127)
+unsigned char      // Zeichen (als Zahl 1Byte ohne Vorzeichen: 0 ... 255)</code></pre>
+
+                <h4>Integer</h4>
+                <pre><code>short, short int   // mit Vorzeichen (2Byte: -32768 ... +32767)
+int                // mit Vorzeichen (meist 4Byte: -21474883648 ... +21474883647)
+long, long int     // mit Vorzeichen (4Byte: -21474883648 ... +21474883647)</code></pre>
+
+                <h4>Fließkomma</h4>
+                <pre><code>float              // Einfach genaue Fließkommazahl
+double             // Doppelt genaue Fließkommazahl
+long double        // Extra genaue Fließkommazahl</code></pre>
+
+                <h4>Boolean</h4>
+                <p>Logische Werte - sogenannte Wahrheitswerte - werden mit dem Typ bool dargestellt, der die Werte true und false annehmen kann.</p>
+                <pre><code>bool bIsPos;                    // Variable mit Vorbesetzung false
+bool bIsVar = true;             // Variable mit Vorbesetzung true
+bool bIsEmpty();                // Funktion mit boolschem Rückgabewert
+bIsPos = bIsEmpty();            // Zuweisung des Funktionswertes
+bIsPos = 5 < 7;                 // Zuweisung eines logischen Ausdrucks (hier true)</code></pre>
+
+                <h3>Zusammengesetzte Datentypen</h3>
+                
+                <h4>Referenzen</h4>
+                <p>Eine Referenz ist ein weiterer Name für ein bestehendes Objekt. Das heißt, bei der Erstellung einer Referenz wird das Objekt nicht kopiert und Änderungen an der Referenz ändern auch das ursprüngliche Objekt.</p>
+                <pre><code>int a;
+// int& b;          // Fehler: keine Initialisierung
+int& c = a;         // Gültig.
+c = 7;              // Auch a hat jetzt den Wert 7</code></pre>
+
+                <h4>Pointer (Zeiger)</h4>
+                <p>Ein Pointer ist ein Datentyp, der die Adresse eines Objekts beinhaltet.</p>
+                <pre><code>char c1 = 'A';
+char* p = &c1;      // p enthält jetzt die Adresse von c1
+char c2 = *p;       // c2 enthält jetzt ebenfalls 'A'
+p = &c2;            // p zeigt jetzt auf c2</code></pre>
+
+                <h4>Felder</h4>
+                <p>Felder sind ein- oder mehrdimensionale geordnete Ansammlungen eines Datentyps.</p>
+                <pre><code>double arr[5];                          // Feld mit 5 Elementen
+int a[10];                              // Ein Array mit 10 ints, indiziert von 0..9
+int k[5];                               // Ein Array mit 5 ints, indiziert von 0..4
+a[0] = 0.0;                             // Zuweisung an ein Element
+a[9] = 0.9;
+k[3] = 125;
+a[3] = k[3];
+
+char matrix[10][20];                    // Mehrdimensionales Feld: 10 x 20 char-Elemente</code></pre>
+
+                <h2>Ausdrücke / Operatoren</h2>
+                <p>C++ beinhaltet eine Vielzahl von Operatoren. Wichtige Operatoren sind:</p>
+                <ul>
+                    <li>Arithmetische Operatoren: +, -, *, /, %</li>
+                    <li>Vergleichsoperatoren: ==, !=, <, <=, >, >=</li>
+                    <li>Logische Operatoren: &&, ||, !</li>
+                    <li>Zuweisungsoperatoren: =, +=, -=, *=, /=</li>
+                    <li>Inkrement/Dekrement: ++, --</li>
+                </ul>
+
+                <h2>Anweisungen</h2>
+                
+                <h3>if-else-Anweisung</h3>
+                <pre><code>if (expression) statement_1
+// bzw. mit else-Teil:
+if (expression)
+    statement_1
+else
+    statement_2
+// bzw. als Statement mit ?-Operator:
+(expression) ? statement_1 : statement_2;</code></pre>
+
+                <h3>switch-Anweisung</h3>
+                <pre><code>switch (expression)
+{
+    case constant_expression_1:
+        statements
+        break;
+    case constant_expression_2:
+        statements
+        break;
+    default:
+        statements
+}</code></pre>
+
+                <h3>while-Anweisung</h3>
+                <pre><code>while (expression) statement</code></pre>
+
+                <h3>for-Anweisung</h3>
+                <pre><code>for (expression_1; expression_2; expression_3) statement
+
+// Beispiel:
+int k = 5;
+int fak = 1;
+for (i = k; i > 1; --i)
+    fak *= i;  // fak = Fakultät von k</code></pre>
+
+                <h3>for-Schleife auf Range-Basis</h3>
+                <pre><code>for (range_declaration : range_datatype) statement
+
+// Beispiel mit einem Feld:
+int v[] = {0, 1, 2, 3, 4, 5};
+for (auto &i : v)
+    cout << i << ' ';</code></pre>
+
+                <h2>Funktionen</h2>
+                <p>Eine Funktion ist eine Zusammenfassung von Anweisungen zu einer Einheit. Sie erhält Objekte eines bestimmten Typs als Argumente und liefert wiederum als Ergebnis ein Objekt eines bestimmten Typs.</p>
+                <pre><code>long fak(int k)              // Returnwert long, Ein Argument int k
+{
+    // ...
+    return erg;              // Ergebnis
+}
+
+int main()                   // Hauptprogramm
+{
+    long x;
+    x = fak(5);              // Aufruf der Funktion
+    return 0;                // Ende des Programms
+}</code></pre>
+
+                <h3>Funktionsparameter</h3>
+                <p>Funktionsparameter werden in C++ normalerweise als Wert übergeben (call by value). Soll eine Referenz übergeben werden (call by reference), so muss dazu der Übergabe-Parameter als Referenz deklariert werden.</p>
+                <pre><code>void some_function(int& i) {
+    i = 99;
+}
+
+int main()
+{
+    int a;
+    some_function(a);
+    // a hat jetzt den in some_function() zugewiesenen Wert
+}</code></pre>
+            `;
+        }
+
+        function getNamespacesContent() {
+            return `
+                <h1>Namensbereiche</h1>
+                
+                <p>Ein Namensbereich (engl. namespace) ist ein Mechanismus zum Gruppieren logisch zusammengehöriger Deklarationen. Diese Technik wird vorwiegend bei größeren Projekten eingesetzt, bei denen durch Namensbereiche repräsentierte Module oft Hunderte von Funktionen, Klassen und Templates beinhalten.</p>
+
+                <p>Ein Namensbereich ist ein Gültigkeitsbereich für Namen. In verschiedenen Namensbereichen können gleiche Namen verwendet werden, ohne dass es zu Verwechslungen kommt.</p>
+
+                <h2>Definition von Namensbereichen</h2>
+                <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+namespace name1
+{
+    double f();
+    int g(int i);
+}
+
+namespace name2
+{
+    void h(std::string s);
+    int number;
+}
+
+double name1::f() { /*...*/ }
+int name1::g(int i) { /*...*/ }
+
+void name2::h(std::string s)
+{
+    std::cout << s << name1::f() << " " 
+              << name1::g(number) << std::endl;
+}</code></pre>
+
+                <h2>using-Deklaration</h2>
+                <p>Wird ein Name häufig außerhalb seines Namensbereichs benutzt, wird es schnell lästig und auch unübersichtlich, ihn immer wieder zu qualifizieren. Dies kann mit Hilfe der using-Deklaration vermieden werden, die ein lokales Synonym erzeugt.</p>
+
+                <pre><code>#include &lt;iostream&gt;
+#include &lt;string&gt;
+
+using namespace std;  // using Direktive
+
+namespace name1
+{
+    double f();
+    int g(int i);
+}
+
+namespace name2
+{
+    void h(string s);
+    int number;
+    using name1::f;   // using Deklaration
+}</code></pre>
+
+                <h2>Hinweise zur Verwendung</h2>
+                <ul>
+                    <li>Aufgrund der using-Direktive können alle Namen der C++ Standardbibliothek ohne Qualifizierer benutzt werden.</li>
+                    <li>Da diese Form der Veröffentlichung von Namen den Mechanismus der Namensbereiche zunichte macht, sollte eine globale using-Direktive eher sparsam eingesetzt werden.</li>
+                    <li>Vor allem sollte sie, wenn möglich, in Headerdateien vermieden werden, weil automatisch alle Dateien, die diese Datei einbinden, sie auch beinhalten.</li>
+                    <li>Es ist meistens eine gute Idee, eine using-Deklaration so lokal wie möglich zu halten.</li>
+                </ul>
+            `;
+        }
+
+        function getKlassenContent() {
+            return `
+                <h1>Klassen</h1>
+
+                <p>Ein Problem bei der Entwicklung großer Programme besteht darin, dass bei vielen Variablen die Abhängigkeiten nicht mehr überschaubar sind. In C++ fasst man daher Daten zu Objekten zusammen, die miteinander interagieren. Zusätzlich werden Methoden auf Objekten definiert. Diesen Ansatz nennt man Objektorientierte Programmierung (OOP).</p>
+
+                <h2>Klassendefinition</h2>
+                <p>Der Datentyp eines Objektes ist eine Klasse. In einer Klasse werden die Datenelemente (Variablen) definiert, die ein Objekt hat. Zusätzlich können der Datenstruktur Methoden (Funktionen) zugeordnet werden.</p>
+
+                <pre><code>class Point
+{
+public:
+    double x, y;
+};
+
+class Date
+{
+private:
+    int year, month, day;
+};</code></pre>
+
+                <h2>Zugriffsspezifizierer</h2>
+                <p>Für die Zugriffskontrolle gibt es die Zugriffsspezifizierer:</p>
+                <ul>
+                    <li><strong>public</strong>: Von jeder Stelle des Programms aus zugreifbar</li>
+                    <li><strong>private</strong>: Nur die Methoden der Klasse dürfen zugreifen</li>
+                    <li><strong>protected</strong>: Zugriff von der Klasse selbst und abgeleiteten Klassen</li>
+                </ul>
+
+                <h2>Konstruktor und Destruktor</h2>
+                
+                <h3>Konstruktoren</h3>
+                <p>Konstruktoren sind besondere Funktionen, die ein Objekt einer Klasse erstellen. Bei allen Instanziierungen wird zwingend ein Konstruktor aufgerufen.</p>
+
+                <pre><code>class Sum
+{
+public:
+    Sum();                      // Standardkonstruktor
+    Sum(int i, int j);          // Konstruktor mit Parameter
+    virtual ~Sum();             // Destruktor
+    int getJ() {return p_j;}
+    void setI(int i);
+    int getI() {return p_i;}
+    int getSum() {return p_i+p_j;}
+    
+private:
+    int p_j = 0;                // Initialisierung mit 0
+    int p_i = 0;
+};</code></pre>
+
+                <h3>Implementierung</h3>
+                <pre><code>Sum::Sum()
+{
+    std::cout << "Standardkonstruktor" << std::endl;
+}
+
+Sum::Sum(int i, int j)
+{
+    if (i > 0) 
+    {
+        p_i = i;                // Instanzvariable setzen
+    }
+    if (j > 0) 
+    {
+        p_j = j;                // Instanzvariable setzen
+    }
+    std::cout << "Nicht-Standardkonstruktor" << std::endl;
+}
+
+Sum::~Sum()
+{
+    std::cout << "Aufruf des Destruktors" << std::endl;
+}</code></pre>
+
+                <h2>Initialisierungsliste</h2>
+                <p>Für die Initialisierung von Datenelementen gibt es mehrere Möglichkeiten. Eine sehr wichtige ist die Initialisierungsliste:</p>
+
+                <pre><code>class Date
+{
+private:
+    const int p_year = 1970;
+    const int p_month = 1;
+    const int p_day = 1;
+    const int p_day_after = p_day + 1;
+};
+
+Date::Date(int year, int month, int day)
+    // Initialisierungsliste
+    : p_year((year>1970)?year:0),      // Jahr frühestens 1970
+      p_month((month>0 && month<13)?month:0),
+      p_day((day>0 && day<32)?day:0),
+      p_day_after(p_day + 1)
+{
+}</code></pre>
+
+                <h2>Konstante Instanzmethoden</h2>
+                <p>Methoden, die die Instanzen ihrer Klasse nicht verändern, sollten zur besseren Wartbarkeit als konstant markiert werden.</p>
+
+                <pre><code>class Class
+{
+public:
+    int getElement() const;
+private:
+    int iElement;
+};
+
+int Class::getElement() const
+{
+    // iElement = 3;  // Fehler, da Element verändert wird
+    return iElement;
+}</code></pre>
+
+                <h2>Statische Klassenelemente</h2>
+                <p>Datenelemente einer Klasse können mit Hilfe des Schlüsselworts static als Klassenvariable deklariert werden. Von Klassenvariablen wird nur ein Exemplar pro Klasse erzeugt, unabhängig davon, wie viele Objekte der Klasse instanziiert werden.</p>
+
+                <pre><code>class Example
+{
+private:
+    static inline int p_iCounter = 0;        // statische Variable
+    const int p_iNumber = p_iCounter++;
+    
+public:
+    static void printCounter()               // statische Methode
+    {
+        std::cout << "# erzeugte Objekte: " << p_iCounter << std::endl;
+    }
+    
+    void printNumber() const
+    {
+        std::cout << "Objekt#: " << p_iNumber << std::endl;
+    }
+};</code></pre>
+
+                <h2>Der this-Zeiger</h2>
+                <p>Werden mehrere Objekte einer Klasse erzeugt, so sind nur die Datenelemente in diesem Objekt vorhanden. Die Methoden hingegen werden für jede Klasse nur einmal erzeugt. Bei Aufruf einer Methode wird deswegen das konkrete Objekt übergeben. Der Compiler übergibt bei jedem Methodenaufruf das jeweilige Objekt als Pointer. Innerhalb der Funktion kann man durch this auf diesen Pointer zugreifen.</p>
+            `;
+        }
+
+        function getVererbungContent() {
+            return `
+                <h1>Vererbung</h1>
+
+                <p>Die Vererbung (engl.: Inheritance) ist ein Mechanismus, der es erlaubt, Datenstrukturen und Methoden einer Klasse (Basisklasse) bei der Bildung einer neuen Klasse (Unterklasse, abgeleitete Klasse) wiederzuverwenden.</p>
+
+                <h2>Syntax der Vererbung</h2>
+                <pre><code>// Beispiel
+class PassengerTrain: public Train;</code></pre>
+
+                <h2>Zugriffsspezifizierer bei Vererbung</h2>
+                <p>Der Zugriffsspezifizierer gibt an, wie Datenelemente und Methoden der Basisklasse innerhalb der abgeleiteten Klasse maximal zugänglich sind.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Element in Basis</th>
+                            <th>Vererbung</th>
+                            <th>Element in abgeleiteter Klasse</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>private</td>
+                            <td>public</td>
+                            <td>Zugriff nicht möglich</td>
+                        </tr>
+                        <tr>
+                            <td>protected</td>
+                            <td>public</td>
+                            <td>protected</td>
+                        </tr>
+                        <tr>
+                            <td>public</td>
+                            <td>public</td>
+                            <td>public</td>
+                        </tr>
+                        <tr>
+                            <td>private</td>
+                            <td>private</td>
+                            <td>Zugriff nicht möglich</td>
+                        </tr>
+                        <tr>
+                            <td>protected</td>
+                            <td>private</td>
+                            <td>private</td>
+                        </tr>
+                        <tr>
+                            <td>public</td>
+                            <td>private</td>
+                            <td>private</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Beispiel mit Vererbung</h2>
+                <pre><code>class Shape
+{
+protected:
+    double p_x = 0.0;
+    double p_y = 0.0;
+    
+public:
+    Shape() = default;
+    Shape(double x, double y) : p_x(x), p_y(y) {}
+    
+    double area() const {
+        return 0.0;
+    }
+};
+
+class Box : public Shape    // Box abgeleitet von Shape
+{
+    double p_w = 0.0;
+    double p_h = 0.0;
+    
+public:
+    Box() = default;
+    Box(double x, double y, double w, double h)
+        : Shape(x, y),      // Aufruf des Konstruktors der Basisklasse
+          p_w(w),
+          p_h(h)
+    {}
+    
+    double area() const
+    {
+        return p_w * p_h;
+    }
+};</code></pre>
+
+                <h2>Polymorphie</h2>
+                <p>Damit alle Objekte, die die Schnittstelle implementieren, über eine Referenz als Basisklasse oder einen Pointer auf Basisklasse korrekt angesprochen werden, muss die Funktion in der Basisklasse als virtuell (Schlüsselwort virtual) deklariert werden.</p>
+
+                <pre><code>class Shape
+{
+protected:
+    double p_x = 0.0;
+    double p_y = 0.0;
+    
+public:
+    Shape() = default;
+    Shape(double x, double y) : p_x(x), p_y(y) {}
+    
+    virtual double area() const {   // <--- virtual
+        return 0.0;
+    }
+};
+
+int main()
+{
+    Line line(10.0, 10.0, 30.0, 30.0);
+    Shape* shape1 = new Box(10.0, 10.0, 20.0, 20.0);
+    
+    std::cout << shape1->area() << std::endl;    // ruft Box::area auf
+    
+    Shape& shape_ref1 = *shape1;
+    std::cout << shape_ref1.area() << std::endl; // ruft Box::area auf
+}</code></pre>
+
+                <h2>Abstrakte Klassen</h2>
+                <p>In C++ realisiert man eine abstrakte Klasse durch Deklaration mindestens einer „rein-virtuellen" Methode. Eine rein-virtuelle Methode wird bei der Deklaration mit = 0 markiert.</p>
+
+                <pre><code>virtual return-type function-name(parameter-list) = 0;</code></pre>
+
+                <p>Es können keine Objekte einer abstrakten Klasse erzeugt werden. Eine rein-virtuelle Methode braucht in der Basisklasse nicht implementiert werden. In allen abgeleiteten Klassen müssen rein-virtuelle Methoden überschrieben werden.</p>
+
+                <h2>Überladen von Methoden</h2>
+                <p>In C++ können mehrere Funktionen mit gleichen Namen definiert werden. Diese Technik wird als Überladen (engl. overload) bezeichnet.</p>
+
+                <pre><code>int max(int a, int b) { return (a > b) ? a : b; }      // int comparison
+char max(char a, char b) { return (a > b) ? a : b; }   // char comparison</code></pre>
+
+                <h2>Überladen von Operatoren</h2>
+                <p>In C++ sind Operatoren prinzipiell als Funktionen definiert und können somit wie Funktionen benutzt und auch überladen werden.</p>
+
+                <pre><code>class X
+{
+public:
+    // Inkrement:
+    const X operator++(int);    // Postfix-Inkrement
+    X& operator++();            // Praefix-Inkrement
+    
+    // Zuweisungen:
+    X& operator+=(const X&);    // X+=X
+    
+    // Andere:
+    X& operator[](int);         // Subskript
+};
+
+// arithmetisch und logisch:
+X& operator+(const X&, const X&)
+
+// Vergleich
+bool operator==(const X&, const X&);
+
+// Ein- und Ausgabe
+std::istream& operator>>(std::istream&, X&);
+std::ostream& operator<<(std::ostream&, const X&);</code></pre>
+
+                <h2>Beispiel: Ausgabeoperator</h2>
+                <pre><code>std::ostream& operator<<(std::ostream& o, const Train& train)
+{
+    train.vPrintProperties(o);
+    return o;
+}
+
+// Verwendung:
+std::cout << myTrain << std::endl;</code></pre>
+            `;
+        }
+
+        function getSmartPointerContent() {
+            return `
+                <h1>Smart Pointer</h1>
+
+                <p>In neuen Versionen von C++ findet man eine Alternative zu new/delete Funktionen, die die Effizienz dynamischer Objekte mit dem Besitzverhalten eines Wertes oder Containers kombinieren. Dadurch kann das korrekte Löschen der Objekte automatisiert werden, wenn keine Referenzen auf das Objekt mehr bestehen:</p>
+
+                <ul>
+                    <li><strong>unique_ptr</strong> - die eindeutig auf ein Objekt zeigen (und den Besitz dieses Objekts haben)</li>
+                    <li><strong>shared_ptr</strong> - die ggf. mehrfach auf ein Objekt zeigen (und alle den Besitz dieses Objekts teilen)</li>
+                    <li><strong>weak_ptr</strong> - die aus einem shared_ptr erzeugt werden (und keinen Besitz an diesem Objekt haben)</li>
+                </ul>
+
+                <p>Für die Nutzung der Smart Pointer muss der Header &lt;memory&gt; eingebunden werden.</p>
+
+                <h2>unique_ptr</h2>
+                <p>unique-pointer sind sehr ressourcenschonend: Sie brauchen genauso viel Speicherplatz wie ein normaler Pointer. Wie der Name schon verrät, hat das Objekt, auf den der unique_ptr zeigt, genau einen Besitzer.</p>
+
+                <pre><code>#include &lt;memory&gt;
+#include &lt;iostream&gt;
+
+int squareIt(std::unique_ptr&lt;int&gt; s) {
+    int squared = *s;
+    return squared*squared;
+}
+
+int main()
+{
+    std::unique_ptr&lt;int&gt; number = std::make_unique&lt;int&gt;(15);
+    
+    if(number){
+        std::cout << "Der Pointer existiert: " << *number << std::endl;
+    }
+    
+    int numberSquared = squareIt(move(number));
+    std::cout << "Quadrierter Wert: " << numberSquared << std::endl;
+    
+    if(number){
+        std::cout << "Der Pointer existiert noch" << std::endl;
+    } else {
+        std::cout << "Der Pointer existiert nicht mehr" << std::endl;
+    }
+}</code></pre>
+
+                <h3>unique_ptr mit Container</h3>
+                <pre><code>#include &lt;memory&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+class Animal{
+private:
+    std::string species;
+    int age;
+    double weight;
+public:
+    Animal(std::string species, int age, double weight);
+    std::string getSpecies() {return species;}
+    int getAge() {return age;}
+    double getWeight() {return weight;}
+};
+
+int main()
+{
+    std::vector&lt;std::unique_ptr&lt;Animal&gt;&gt; animalVector;
+    
+    std::unique_ptr&lt;Animal&gt; cat = std::make_unique&lt;Animal&gt;("Cat", 7, 3.9);
+    std::unique_ptr&lt;Animal&gt; dog = std::make_unique&lt;Animal&gt;("Dog", 11, 36.4);
+    
+    animalVector.push_back(move(cat));
+    animalVector.push_back(move(dog));
+    
+    for(auto& i : animalVector){
+        std::cout << "Species: " << i->getSpecies() 
+                  << ", Age: " << i->getAge() 
+                  << ", Weight: " << i->getWeight() << std::endl;
+    }
+}</code></pre>
+
+                <h2>shared_ptr</h2>
+                <p>shared_ptr sind ähnlich zu unique_ptr, haben aber den großen Unterschied, dass ein Objekt mehr als einen Besitzer haben kann. Die Anzahl der Referenzen/Besitzer, die auf das Objekt zeigen, werden entsprechend hoch- und runtergezählt. Wenn dieser Counter auf 0 gefallen ist, wird das Objekt gelöscht.</p>
+
+                <pre><code>#include &lt;iostream&gt;
+#include &lt;memory&gt;
+
+int squareIt(std::shared_ptr&lt;int&gt;& s) {
+    return (*s)*(*s);
+}
+
+int main()
+{
+    std::shared_ptr&lt;int&gt; i_number = std::make_shared&lt;int&gt;(15);
+    
+    if(i_number){
+        std::cout << "Der Pointer existiert: " << *i_number << std::endl;
+    }
+    
+    int numberSquared = squareIt(i_number);
+    std::cout << "Quadrierter Wert: " << numberSquared << std::endl;
+    
+    if(i_number){
+        std::cout << "Der Pointer existiert noch: " << *i_number << std::endl;
+    }
+}</code></pre>
+
+                <h2>weak_ptr</h2>
+                <p>weak_ptr sind eine spezielle Art shared_ptr: Sie existieren nur, wenn sie mit einem zugehörigen shared_ptr verbunden sind. Sie ermöglichen Zugriff auf ein Objekt, erhöhen aber nicht den Referenzzähler des shared_ptr; sie haben also keine Besitzrechte an dem Objekt.</p>
+
+                <p>Man benutzt weak_ptr, um sogenannte Besitzzyklen in Datenstrukturen zu vermeiden.</p>
+
+                <pre><code>#include &lt;memory&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+
+class Person
+{
+public:
+    Person(const std::string& name, 
+           std::shared_ptr&lt;Person&gt; father = nullptr, 
+           std::shared_ptr&lt;Person&gt; mother = nullptr);
+    virtual ~Person();
+    void setSibling(std::weak_ptr&lt;Person&gt; sibling);
+    
+private:
+    std::shared_ptr&lt;Person&gt; p_father;
+    std::shared_ptr&lt;Person&gt; p_mother;
+    const std::string p_sName;
+    std::vector&lt;std::weak_ptr&lt;Person&gt;&gt; p_siblings;  // weak_ptr!
+};
+
+void test1()
+{
+    auto m1 = std::make_shared&lt;Person&gt;("Josef");
+    auto f1 = std::make_shared&lt;Person&gt;("Maria");
+    auto m2 = std::make_shared&lt;Person&gt;("Peter", m1, f1);
+    auto f2 = std::make_shared&lt;Person&gt;("Birgit", m1, f1);
+    
+    m2->setSibling(f2);
+    f2->setSibling(m2);
+}</code></pre>
+
+                <h3>lock() Funktion</h3>
+                <p>Beim weak_ptr kann man abfragen, ob der zugehörige shared_ptr noch definiert ist. Dies geschieht durch die Funktion lock().</p>
+
+                <pre><code>void doesWeakExistProperly(std::weak_ptr&lt;int&gt; weak){
+    if(weak.lock()){
+        std::cout << "Pointer gelocked: " << *weak.lock() << std::endl;
+    } else {
+        std::cout << "Pointer konnte nicht gelocked werden" << std::endl;
+    }
+}</code></pre>
+
+                <h2>Vorteile von Smart Pointern</h2>
+                <ul>
+                    <li>Sie werden automatisch zerstört und geben ihren Speicher frei</li>
+                    <li>Manuelle Aufrufe von delete sind nicht notwendig</li>
+                    <li>Sie sind Exception-sicher</li>
+                    <li>Der Besitz ist eindeutig</li>
+                </ul>
+            `;
+        }
+
+        function getContainerContent() {
+            return `
+                <h1>Container Klassen</h1>
+
+                <p>Container sind Klassen zur Aufnahme von Objekten beliebigen Typs mit Funktionen zum Einfügen, Löschen und Verwalten dieser Objekte. Verschiedene Container unterscheiden sich in der Art und Weise, wie die Objekte zueinander arrangiert sind.</p>
+
+                <h2>Überblick Container-Typen</h2>
+                <ul>
+                    <li><strong>Sequentielle Container</strong>: Elemente behalten die Reihenfolge bei (z.B. vector, list, array)</li>
+                    <li><strong>Assoziative Container</strong>: Zugriff über Schlüssel (z.B. map, set)</li>
+                    <li><strong>Adapter</strong>: Container mit eingeschränkter Schnittstelle (z.B. stack, queue)</li>
+                </ul>
+
+                <h2>std::vector</h2>
+                <p>Die Größe eines vector kann sich während der Ausführung des Programmes bei Bedarf ändern. Definiert ist der Vektor im Header &lt;vector&gt;.</p>
+
+                <pre><code>#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::vector&lt;int&gt; v1 = {0, 1, 2};
+    
+    std::cout << "Der ursprüngliche Vektor: ";
+    for(auto i: v1){
+        std::cout << i << ' ';  // Ausgabe: 0 1 2
+    }
+    std::cout << std::endl;
+    
+    v1.pop_back();
+    std::cout << "Nach pop_back: ";
+    for(auto i: v1){
+        std::cout << i << ' ';  // Ausgabe: 0 1
+    }
+    std::cout << std::endl;
+    
+    v1.push_back(5);
+    v1.insert(v1.begin(), 6);
+    std::cout << "Nach Einfügen: ";
+    for(auto i: v1){
+        std::cout << i << ' ';  // Ausgabe: 6 0 1 5
+    }
+}</code></pre>
+
+                <h3>Wichtige Funktionen von vector</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funktion</th>
+                            <th>Funktionalität</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>size_type size() const</td>
+                            <td>Liefert die Anzahl der Elemente</td>
+                        </tr>
+                        <tr>
+                            <td>void push_back(const T& val)</td>
+                            <td>Fügt val am Ende des Vektors ein</td>
+                        </tr>
+                        <tr>
+                            <td>void insert(iterator pos, const T& val)</td>
+                            <td>Fügt val an der Stelle pos ein</td>
+                        </tr>
+                        <tr>
+                            <td>void pop_back()</td>
+                            <td>Löscht das letzte Element</td>
+                        </tr>
+                        <tr>
+                            <td>void clear()</td>
+                            <td>Entfernt alle Elemente</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>std::list</h2>
+                <p>Eine Liste ist ein sequentieller Container, der für Einfügen und Löschen gut geeignet ist. Sie ist in &lt;list&gt; definiert.</p>
+
+                <pre><code>#include &lt;list&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+    std::list&lt;int&gt; l1;
+    l1.push_back(7);
+    
+    std::cout << "Die ursprüngliche Liste: ";
+    for(int i: l1){
+        std::cout << i << ' ';  // Ausgabe: 7
+    }
+    std::cout << std::endl;
+    
+    l1.insert(l1.begin(), 3);
+    std::cout << "Nach insert am Anfang: ";
+    for(int i: l1){
+        std::cout << i << ' ';  // Ausgabe: 3 7
+    }
+    std::cout << std::endl;
+    
+    l1.push_front(6);
+    std::cout << "Nach push_front: ";
+    for(int i: l1){
+        std::cout << i << ' ';  // Ausgabe: 6 3 7
+    }
+}</code></pre>
+
+                <h3>Wichtige Funktionen von list</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funktion</th>
+                            <th>Funktionalität</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>void push_back(const T& val)</td>
+                            <td>Fügt val am Ende der Liste ein</td>
+                        </tr>
+                        <tr>
+                            <td>void push_front(const T& val)</td>
+                            <td>Fügt val am Anfang der Liste ein</td>
+                        </tr>
+                        <tr>
+                            <td>void pop_back()</td>
+                            <td>Löscht das letzte Element</td>
+                        </tr>
+                        <tr>
+                            <td>void pop_front()</td>
+                            <td>Löscht das erste Element</td>
+                        </tr>
+                        <tr>
+                            <td>void erase(iterator pos)</td>
+                            <td>Löscht das Element an der Position pos</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>std::array</h2>
+                <p>Das in der Container-Bibliothek implementierte array ist eine bessere Implementierung der aus C bekannten Felder. Definiert ist array im Header &lt;array&gt;.</p>
+
+                <pre><code>#include &lt;array&gt;
+
+std::array&lt;int, 42&gt; feld;                    // Array mit 42 int-Werten
+std::array&lt;int, 3&gt; feld = {1, 2, 3};         // Array mit Initialisierung</code></pre>
+
+                <p><strong>Wichtig:</strong> Die Größe von array muss zur Compile-Zeit vorliegen. Elemente können weder hinzugefügt noch entfernt werden.</p>
+
+                <h2>std::map</h2>
+                <p>Maps sind assoziative Container zur Speicherung von Schlüssel/Wert-Paaren. Sie ermöglichen schnellen Zugriff über den Schlüssel. Maps sind im Header &lt;map&gt; definiert.</p>
+
+                <pre><code>#include &lt;map&gt;
+#include &lt;string&gt;
+
+int main()
+{
+    std::map&lt;long, std::string&gt; studi_map;
+    
+    studi_map[123123] = "Schmachtenberg";
+    studi_map[123456] = "Ruediger";
+    studi_map[123321] = "Ulrich";
+    
+    std::cout << "Die Studierenden: " << std::endl;
+    for(const auto& it: studi_map){
+        std::cout << it.first << " " << it.second << std::endl;
+    }
+}</code></pre>
+
+                <h2>Iteratoren</h2>
+                <p>Iteratoren sind Objekte, die es gestatten, Elemente eines Containers zu durchlaufen. Definiert sind sie im Header &lt;iterator&gt;.</p>
+
+                <div class="image-placeholder">
+                    <p>[BILD: Durchlauf einer Liste mit Iterator]</p>
+                    <p>Pfad für Bild: images/iterator_durchlauf.png</p>
+                </div>
+
+                <h3>Grundlegende Operationen</h3>
+                <ul>
+                    <li>Dereferenzierung (* und -&gt; Operatoren)</li>
+                    <li>Pre- und Post-Inkrement-Operatoren (++ bzw. --)</li>
+                    <li>Test auf (Un-)Gleichheit (== bzw. !=)</li>
+                </ul>
+
+                <pre><code>#include &lt;vector&gt;
+#include &lt;iterator&gt;
+
+int main()
+{
+    std::vector&lt;int&gt; v;
+    for(int i = 0; i < 10; ++i){
+        v.push_back(i);
+    }
+    
+    std::vector&lt;int&gt;::iterator it;
+    std::cout << "v wird vorwärts durchlaufen: ";
+    for(it = v.begin(); it < v.end(); it++){
+        std::cout << *it << " ";  // Ausgabe: 0 1 2 3 4 5 6 7 8 9
+    }
+    std::cout << std::endl;
+    
+    std::vector&lt;int&gt;::reverse_iterator revIt;
+    std::cout << "v wird rückwärts durchlaufen: ";
+    for(revIt = v.rbegin(); revIt != v.rend(); revIt++){
+        std::cout << *revIt << " ";  // Ausgabe: 9 8 7 6 5 4 3 2 1 0
+    }
+}</code></pre>
+
+                <h3>Range-basierte for-Schleife</h3>
+                <pre><code>std::vector&lt;int&gt; v (3,1);
+v.push_back(7);
+
+int sum = 0;
+for(auto it: v){
+    sum += it;
+}
+std::cout << "Summe = " << sum << std::endl;  // Ausgabe: 10</code></pre>
+            `;
+        }
+
+        function getExceptionsContent() {
+            return `
+                <h1>Exception Handling (Ausnahmebehandlung)</h1>
+
+                <p>Unter Exceptions (Ausnahmen) versteht man Fehler oder Sondersituationen, die bei der Programmausführung auftreten können. Beim Entwurf von Bibliotheken und Klassen ist anfangs nicht klar, wie und vor allem an welcher Stelle Fehler geeignet zu behandeln sind.</p>
+
+                <h2>Grundkonzept</h2>
+                <p>Anstatt den Fehler durch alle Funktionen explizit durchzureichen, wird bei Exceptions der Fehler beim Auftreten <strong>geworfen (throw)</strong> und in der Anwendung durch den zugehörigen Exception Handler <strong>gefangen (catch)</strong>.</p>
+
+                <h2>Syntax</h2>
+                
+                <h3>throw-Ausdruck</h3>
+                <pre><code>throw expression;</code></pre>
+
+                <h3>try-catch-Block</h3>
+                <pre><code>try {
+    // Dieser Teil des Codes wird überwacht
+    // hier wird eine Exception geworfen
+}
+catch (const Exceptionclass1& aExc) {
+    // hier werden Ausnahmen der Exceptionclass1
+    // und aller Unterklassen bearbeitet
+}
+catch (const Exceptionclass2& aExc) {
+    // hier werden Ausnahmen der Exceptionclass2
+    // und aller Unterklassen bearbeitet
+}
+catch (...) {
+    // hier werden alle übrigen Ausnahmen behandelt
+}</code></pre>
+
+                <h2>Eigene Exception-Klassen</h2>
+                <p>Exception-Klassen sollten von std::exception oder anderen Exception-Typen aus der Standardbibliothek erben:</p>
+
+                <pre><code>#include &lt;exception&gt;
+#include &lt;stdexcept&gt;
+
+class MyException : public logic_error {
+    int p_i;
+public:
+    MyException(const string& what, int i) 
+        : logic_error(what), p_i(i) {}
+};</code></pre>
+
+                <h2>Beispiel: Array mit Exception</h2>
+                <pre><code>template &lt;typename T, int N&gt;
+T& Array&lt;T, N&gt;::at(int i)
+{
+    if (0 &lt;= i && i &lt; N)
+        return p_array[i];
+    else
+        throw std::out_of_range("Fehler: Array Index außerhalb des gültigen Bereichs.");
+}
+
+// Verwendung:
+try {
+    x = array.at(3);
+}
+catch (const out_of_range& e) {
+    cout &lt;&lt; e.what() &lt;&lt; endl;
+}</code></pre>
+
+                <h2>Exception-Hierarchie</h2>
+                <p>Eine Hierarchie für mathematische Fehler könnte so aussehen:</p>
+
+                <pre><code>class MathError : std::exception {
+    string what;
+public:
+    MathError(const string& s) : what(s){}
+    virtual void vTreat() const {
+        cout &lt;&lt; what &lt;&lt; endl;
+    }
+};
+
+class NegRoot: public MathError {
+    double p_arg;
+public:
+    NegRoot(double arg)
+        : MathError("Fehler: Wurzel aus negativer Zahl"), 
+          p_arg(arg){}
+    
+    void vTreat() const override {
+        MathError::vTreat();
+        cout &lt;&lt; " Argument: " &lt;&lt; p_arg &lt;&lt; endl;
+    }
+};
+
+// Verwendung:
+try {
+    /* ... */
+}
+catch (const MathError& e) {
+    e.vTreat();
+}</code></pre>
+
+                <h2>Exception erneut werfen</h2>
+                <p>Im catch-Block kann die aktuelle Exception noch einmal geworfen werden:</p>
+
+                <pre><code>void f(string file) {
+    ifstream fin(file);
+    try {
+        // ...
+    }
+    catch (const exception& e) {
+        cout &lt;&lt; "Fehler: " &lt;&lt; e.what() &lt;&lt; " bei " &lt;&lt; file &lt;&lt; endl;
+        // aktuelle Exception noch einmal werfen
+        throw;
+    }
+}</code></pre>
+
+                <h2>Standard Exception-Typen</h2>
+                <ul>
+                    <li><strong>logic_error</strong>
+                        <ul>
+                            <li>invalid_argument</li>
+                            <li>domain_error</li>
+                            <li>length_error</li>
+                            <li>out_of_range</li>
+                        </ul>
+                    </li>
+                    <li><strong>runtime_error</strong>
+                        <ul>
+                            <li>range_error</li>
+                            <li>overflow_error</li>
+                            <li>underflow_error</li>
+                        </ul>
+                    </li>
+                    <li><strong>bad_cast</strong></li>
+                    <li><strong>bad_alloc</strong></li>
+                </ul>
+
+                <h2>Wann Exceptions verwenden?</h2>
+                <p>Exceptions sollten nicht für jede Situation verwendet werden:</p>
+                <ul>
+                    <li><strong>Verwenden:</strong> Wenn ein Konstruktor ein Objekt nicht konstruieren kann</li>
+                    <li><strong>Verwenden:</strong> Bei unerwarteten Fehlern (z.B. Index außerhalb des Bereichs)</li>
+                    <li><strong>Nicht verwenden:</strong> Für normale Programmabläufe (z.B. Element in Container nicht gefunden)</li>
+                </ul>
+            `;
+        }
+
+        function getTemplatesContent() {
+            return `
+                <h1>Templates</h1>
+
+                <p>Oft unterscheiden sich Lösungen verschiedener Probleme nur in den Datentypen, auf denen sie arbeiten, nicht jedoch in ihrer Funktionalität. In C++ kann man mit einem Template die Funktionalität einmal definieren und dann die Datentypen einfach in die Implementierung einfügen.</p>
+
+                <p>Ein Template ist eine Variable, Klasse oder Funktion mit (noch) nicht definierten Datentypen. Die eigentlichen Datentypen werden erst bei der Instanziierung eines Objekts einer Templateklasse oder beim Aufruf einer Templatefunktion als Parameter übergeben.</p>
+
+                <h2>Syntax</h2>
+                <pre><code>template&lt;{parameter-list}&gt; {declaration}</code></pre>
+
+                <p>Parameter können sein:</p>
+                <ul>
+                    <li>Datentyp: <code>typename T</code> oder <code>class T</code></li>
+                    <li>Integer-Wert: <code>int N</code></li>
+                </ul>
+
+                <h2>Funktionentemplates</h2>
+                <p>Funktionentemplates werden immer dann sinnvoll eingesetzt, wenn Algorithmen unabhängig vom Datentyp auf bestimmte Eigenschaften dieser Datentypen zurückgeführt werden können.</p>
+
+                <pre><code>template&lt;typename T&gt;
+T& max(T& left, T& right) {
+    return right &lt; left ? left : right;
+}
+
+// Verwendung:
+int a = 5, b = 3;
+int maxValue = max(a, b);
+
+double x = 5.5, y = 3.3;
+double maxDouble = max(x, y);</code></pre>
+
+                <h2>Klassentemplates</h2>
+                <p>Klassentemplates werden immer dann eingesetzt, wenn Datenstrukturen unabhängig vom Typ der gespeicherten Elemente dargestellt werden können.</p>
+
+                <pre><code>template&lt;typename T, int N&gt;
+class Array {
+private:
+    T p_array[N];
+    
+public:
+    T* begin() {
+        return p_array;
+    }
+    
+    T* end() {
+        return p_array + N;
+    }
+    
+    T& at(int i);
+};</code></pre>
+
+                <h3>Implementierung von Methoden außerhalb der Klasse</h3>
+                <pre><code>template&lt;typename T, int N&gt;
+T& Array&lt;T, N&gt;::at(int i) {
+    if (0 &lt;= i && i &lt; N)
+        return p_array[i];
+    else
+        throw std::out_of_range("Index außerhalb des Bereichs");
+}</code></pre>
+
+                <h3>Verwendung</h3>
+                <pre><code>Array&lt;int, 15&gt; a;
+Array&lt;int, 100&gt; b;
+Array&lt;float, 1&gt; f;
+
+struct S {};
+Array&lt;S, 20&gt; s;</code></pre>
+
+                <p><strong>Wichtig:</strong> Template-Instanziierungen mit unterschiedlichen Parametern sind unterschiedliche Typen!</p>
+
+                <h2>Beispiel: Einfache Stack-Implementierung</h2>
+                <pre><code>template&lt;typename T&gt;
+class Stack {
+private:
+    std::vector&lt;T&gt; elements;
+    
+public:
+    void push(const T& elem) {
+        elements.push_back(elem);
+    }
+    
+    T pop() {
+        if (elements.empty()) {
+            throw std::out_of_range("Stack ist leer");
+        }
+        T elem = elements.back();
+        elements.pop_back();
+        return elem;
+    }
+    
+    bool empty() const {
+        return elements.empty();
+    }
+};
+
+// Verwendung:
+Stack&lt;int&gt; intStack;
+intStack.push(5);
+intStack.push(10);
+int value = intStack.pop();  // value = 10</code></pre>
+
+                <h2>Hinweise</h2>
+                <ul>
+                    <li>Parameter für Templates müssen zur Compile-Zeit bekannt sein</li>
+                    <li>Templates werden ausschließlich in Headerdateien definiert</li>
+                    <li>Für jeden benutzten Datentyp wird zur Compile-Zeit eigener Code generiert</li>
+                </ul>
+            `;
+        }
+
+        function getIOContent() {
+            return `
+                <h1>Ein- und Ausgabe</h1>
+
+                <p>Für Ein- und Ausgabe bietet C++ die sogenannten Streams an. Um die IO-Streams zu benutzen, muss die Bibliothek eingebunden werden:</p>
+
+                <pre><code>#include &lt;iostream&gt;</code></pre>
+
+                <h2>Standard-Streams</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Objekt</th>
+                            <th>Verwendung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>cin</td>
+                            <td>Standardeingabe (Tastatur)</td>
+                        </tr>
+                        <tr>
+                            <td>cout</td>
+                            <td>Standardausgabe (Bildschirm)</td>
+                        </tr>
+                        <tr>
+                            <td>cerr</td>
+                            <td>Fehlerausgabe (Bildschirm)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Ausgabe</h2>
+                <p>Eine Ausgabe erfolgt durch die Anweisung:</p>
+                <pre><code>std::cout &lt;&lt; object;</code></pre>
+
+                <p>Mehrere Ausgaben können auch direkt miteinander verbunden werden:</p>
+                <pre><code>double x = 25.391;
+int i = 10;
+char s[] = "Test";
+
+std::cout &lt;&lt; "Dies ist die Zahl x: " &lt;&lt; x &lt;&lt; std::endl;
+std::cout &lt;&lt; "Dies ist ein " &lt;&lt; s &lt;&lt; " mit i = " &lt;&lt; i &lt;&lt; std::endl;</code></pre>
+
+                <h2>Formatierte Ausgabe</h2>
+                <p>Für die Formatierung muss &lt;iomanip&gt; eingebunden werden:</p>
+                <pre><code>#include &lt;iomanip&gt;</code></pre>
+
+                <h3>IO-Manipulatoren</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Flag</th>
+                            <th>Verwendung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>setw()</td>
+                            <td>Setzen der Feldbreite für die Ausgabe</td>
+                        </tr>
+                        <tr>
+                            <td>setprecision()</td>
+                            <td>Nachkommastellen bei Fließkommaausgabe</td>
+                        </tr>
+                        <tr>
+                            <td>setfill()</td>
+                            <td>Setzen des Füllzeichens für die Ausgabe</td>
+                        </tr>
+                        <tr>
+                            <td>setiosflags()</td>
+                            <td>Setzen der ios-Flags</td>
+                        </tr>
+                        <tr>
+                            <td>resetiosflags()</td>
+                            <td>Rücksetzen der ios-Flags</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Beispiel</h3>
+                <pre><code>double x = 19.275;
+int i = 125;
+
+std::cout &lt;&lt; std::setw(6) &lt;&lt; std::setprecision(3)
+          &lt;&lt; std::setiosflags(std::ios::fixed) &lt;&lt; x &lt;&lt; std::endl;
+          
+std::cout &lt;&lt; std::setw(10) &lt;&lt; std::setprecision(5)
+          &lt;&lt; std::setiosflags(std::ios::fixed) &lt;&lt; x &lt;&lt; std::endl;</code></pre>
+
+                <h2>Eingabe</h2>
+                <p>Die Eingabe erfolgt mit dem &gt;&gt;-Operator:</p>
+                <pre><code>int variable;
+std::cin &gt;&gt; variable;</code></pre>
+
+                <h2>Ein- und Ausgabe mit Dateien</h2>
+                <p>Die Bibliothek für Dateien wird eingebunden mit:</p>
+                <pre><code>#include &lt;fstream&gt;</code></pre>
+
+                <h3>Schreiben in eine Datei</h3>
+                <pre><code>std::string name = "Arthur";
+int semester = 42;
+double schnitt = 4.2;
+
+const std::string& dateiname = "Ausgabedatei.dat";
+
+// Öffnen des Files für die Ausgabe
+std::ofstream outfile(dateiname);
+
+// Schreibe die Daten in das File
+outfile &lt;&lt; "Name: " &lt;&lt; name &lt;&lt; std::endl;
+outfile &lt;&lt; "Semester: " &lt;&lt; semester &lt;&lt; std::endl;
+outfile &lt;&lt; "Notenschnitt: " &lt;&lt; std::setprecision(1)
+        &lt;&lt; std::setiosflags(std::ios::fixed) &lt;&lt; schnitt &lt;&lt; std::endl;</code></pre>
+
+                <h3>Lesen aus einer Datei</h3>
+                <pre><code>std::string name;
+int semester;
+double schnitt;
+std::string info[3];
+
+const std::string& dateiname = "Ausgabedatei.dat";
+
+// Öffnen des Files zum Lesen
+std::ifstream infile(dateiname);
+
+// Lese die Daten aus dem File
+infile &gt;&gt; info[0] &gt;&gt; name;
+infile &gt;&gt; info[1] &gt;&gt; semester;
+infile &gt;&gt; info[2] &gt;&gt; schnitt;
+
+// Schreiben auf den Bildschirm
+std::cout &lt;&lt; info[0] &lt;&lt; name &lt;&lt; std::endl;
+std::cout &lt;&lt; info[1] &lt;&lt; semester &lt;&lt; std::endl;
+std::cout &lt;&lt; info[2] &lt;&lt; schnitt &lt;&lt; std::endl;</code></pre>
+
+                <h3>Dateiende erkennen</h3>
+                <pre><code>int zahl;
+std::ifstream fin("Testdatei.dat");
+
+fin &gt;&gt; zahl;  // Einlesen vor erstem eof Test
+while (!fin.eof())
+{
+    std::cout &lt;&lt; "Gelesene Zahl: " &lt;&lt; zahl &lt;&lt; std::endl;
+    fin &gt;&gt; zahl;  // Versuch, nächste Zahl zu lesen
+}</code></pre>
+
+                <h2>Strings</h2>
+                <p>Mit einem String der Standardbibliothek wird die Bearbeitung von Zeichenketten erleichtert:</p>
+
+                <pre><code>#include &lt;string&gt;
+
+std::string myString;                           // leerer String
+std::string myString(10, 'A');                  // "AAAAAAAAAA"
+std::string myString("Dies ist ein String");   // String mit Inhalt</code></pre>
+
+                <h3>String-Operationen</h3>
+                <pre><code>std::string s1("ABC");
+std::string s2 = "AC";
+std::string s3 = s1 + s2;                      // Konkatenation
+
+std::cout &lt;&lt; s3 &lt;&lt; std::endl;                  // Ausgabe: ABCAC
+
+// Zugriff auf Zeichen
+std::cout &lt;&lt; s1[1] &lt;&lt; std::endl;               // Ausgabe: B
+
+// Länge
+std::cout &lt;&lt; s1.length() &lt;&lt; std::endl;         // Ausgabe: 3</code></pre>
+
+                <h3>Wichtige String-Methoden</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Methode</th>
+                            <th>Funktionalität</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>length(), size()</td>
+                            <td>Liefert die aktuelle Länge des Strings</td>
+                        </tr>
+                        <tr>
+                            <td>empty()</td>
+                            <td>Liefert true, falls leer</td>
+                        </tr>
+                        <tr>
+                            <td>insert(pos, str)</td>
+                            <td>Fügt str vor pos im String ein</td>
+                        </tr>
+                        <tr>
+                            <td>erase(pos, anzahl)</td>
+                            <td>Löscht ab pos anzahl Zeichen</td>
+                        </tr>
+                        <tr>
+                            <td>find(str, pos)</td>
+                            <td>Sucht str ab pos</td>
+                        </tr>
+                        <tr>
+                            <td>substr(pos, laenge)</td>
+                            <td>Liefert einen Substring</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function getTypecastContent() {
+            return `
+                <h1>Typumwandlung</h1>
+
+                <p>In Ausdrücken und Zuweisungen können fundamentale Datentypen beliebig gemischt werden. Um die gewünschte Aktion durchführen zu können, müssen die verschiedenen Werte auf einen gemeinsamen Datentyp gebracht werden.</p>
+
+                <h2>Implizite (automatische) Typumwandlung</h2>
+                <p>Werte werden automatisch so umgewandelt, dass keine Informationen verloren gehen:</p>
+
+                <pre><code>int i;
+float f;
+double d;
+
+d = i + f;              // i wird zu float, i+f dann zu double
+i = int(f) + int(d);    // f, d werden zu int (Nachkommastellen abgeschnitten)</code></pre>
+
+                <h3>Konstruktor zur Typumwandlung</h3>
+                <p>Jeder Konstruktor, der mit genau einem Argument aufgerufen werden kann, definiert implizit eine Typumwandlung:</p>
+
+                <pre><code>class Bruch {
+    int p_x = 0, p_y = 1;  // Zähler und Nenner
+public:
+    Bruch() = default;
+    Bruch(int x)           // implizite Konvertierung
+        : p_x(x)
+    {}
+    Bruch(int x, int y)
+        : p_x(x), p_y(y)
+    {}
+    
+    Bruch operator*(const Bruch& r) {
+        Bruch res;
+        res.p_x = p_x * r.p_x;
+        res.p_y = p_y * r.p_y;
+        return res;
+    }
+};
+
+int main()
+{
+    Bruch x(5, 2);
+    Bruch y = x * 15;      // implizit: Bruch(15)
+    return 0;
+}</code></pre>
+
+                <h3>explicit verhindert implizite Umwandlung</h3>
+                <pre><code>class Bruch {
+public:
+    explicit Bruch(int x)  // jetzt explizit
+        : p_x(x)
+    {}
+};
+
+int main()
+{
+    Bruch x(5, 2);
+    // Bruch y = x * 15;   // Fehler: keine implizite Umwandlung
+    Bruch y = x * Bruch(15);  // OK: explizit
+}</code></pre>
+
+                <h3>Typumwandlung durch Operator</h3>
+                <pre><code>class Bruch {
+public:
+    operator double() const
+    {
+        return double(p_x) / double(p_y);
+    }
+};
+
+int main()
+{
+    Bruch x(5, 2);
+    double y;
+    y = x * 15;            // x->double
+    y = 10 * x;            // hier auch möglich x->double
+}</code></pre>
+
+                <h2>Explizite (erzwungene) Typumwandlung</h2>
+
+                <h3>Funktionale Notation</h3>
+                <pre><code>Bruch y = x * Bruch(25, 11);
+Bruch y = x * Bruch(15);</code></pre>
+
+                <h3>static_cast</h3>
+                <p>Der static_cast-Operator konvertiert zwischen verwandten Typen:</p>
+
+                <pre><code>class B {/*...*/ };
+class D : public B {/*...*/ };
+class E : public B {/*...*/ };
+
+void f() {
+    D d;
+    B& b_ref = d;
+    
+    D* d_ptr = dynamic_cast&lt;D*&gt;(&b_ref);  // OK, b_ref ist Instanz von D
+    D& d_ref = dynamic_cast&lt;D&gt;(b_ref);   // OK, analog
+    
+    E* e_ptr = dynamic_cast&lt;E*&gt;(&b_ref);  // e_ptr ist nullptr
+    // E& e_ref = dynamic_cast&lt;E&&gt;(b_ref);  // Exception
+}</code></pre>
+            `;
+        }
+
+        function getAufgabeMotivationContent() {
+            return `
+                <h1>1 Motivation</h1>
+
+                <p>Während des Praktikums sollen alle wesentlichen Elemente objektorientierter Softwareentwicklung und ihre Umsetzung im Sprachumfang von C++ an einem (vereinfachten) Beispiel eingesetzt und geübt werden. Dabei sollen die modernen Pointerkonzepte der Smartpointer eingesetzt werden. Zur Darstellung oft benutzter Datenstrukturen wie Vektor, Liste oder Assoziativspeicher sollen die Klassen der Standard Template Library (STL) kennengelernt und benutzt werden.</p>
+
+                <p>Die Aufgabe besteht aus aufeinander aufbauenden Teilaufgaben, die schließlich zu der Gesamtlösung führen. Die einzelnen Aufgaben sind zu zwei Blöcken zusammengefasst. Für jeden Block wird ein Testat abgenommen.</p>
+
+                <p>Die Aufgaben sollen so implementiert werden, dass für jeden Block ein neues Projekt mit Eclipse angelegt wird. Dazu wird der vorhandene Block kopiert und dann erweitert. Somit sollte ein Testprogramm aus Block1 auch am Ende des Praktikums noch funktionieren.</p>
+            `;
+        }
+
+        function getAufgabeZielContent() {
+            return `
+                <h1>2 Zielaufgabe</h1>
+
+                <p>Es soll der Straßenverkehr in einer wenig erschlossenen Gegend modelliert und simuliert werden.</p>
+
+                <h2>Beschreibung</h2>
+                <p>Verschiedene Arten von Fahrzeugen (PKW, Fahrrad) werden zu einem individuellen Startzeitpunkt von einem Knotenpunkt (Kreuzung) losgeschickt. Jedes Fahrzeug besitzt einen Zeit- und einen Streckenzähler sowohl für die Gesamtstrecke als auch für den Streckenabschnitt, auf dem es sich gerade befindet. Die Daten des Streckennetzes und der eingesetzten Fahrzeuge werden über Konstruktoren gesetzt oder eingelesen.</p>
+
+                <h2>Simulationsobjekte</h2>
+                <p>Das Modell setzt sich aus drei verschiedenen Simulationsobjekten zusammen:</p>
+                <ul>
+                    <li><strong>Fahrzeuge</strong></li>
+                    <li><strong>Wege</strong></li>
+                    <li><strong>Kreuzungen</strong></li>
+                </ul>
+
+                <p>Eine Verbindung zwischen zwei Kreuzungen wird durch eine Straße realisiert, die aus zwei entgegen gerichteten Wegen (Hin- und Rückweg) gebildet wird. Jeder Weg verwaltet die auf dem Weg befindlichen Fahrzeuge, jede Kreuzung die aus ihr abgehenden Wege.</p>
+
+                <h2>Verhalten</h2>
+                <p>Wege können sowohl fahrende als auch parkende Fahrzeuge annehmen. Wenn die Simulation den Startzeitpunkt des parkenden Fahrzeugs erreicht, wird aus diesem ein fahrendes Fahrzeug.</p>
+
+                <p>Alle Simulationsobjekte enthalten eine Funktion, die einen Simulationsschritt ausführt:</p>
+                <ul>
+                    <li>Kreuzungen simulieren die von ihnen abgehenden Wege</li>
+                    <li>Wege simulieren die auf ihnen befindlichen Fahrzeuge</li>
+                </ul>
+
+                <p>Zu jedem Zeitschritt werden also durch die Simulation aller Kreuzungen des Systems nacheinander alle Simulationsobjekte bearbeitet. Das System wird durch einen globalen Zeittakt gesteuert. In jedem Zeittakt werden alle im System befindlichen Objekte genau einmal simuliert. Dies wird erreicht, indem jeweils die letzte Simulationszeit des Simulationsobjektes mit der globalen Zeit verglichen und anschließend synchronisiert wird.</p>
+
+                <h2>Geschwindigkeitsbegrenzung</h2>
+                <p>Auf einigen Wegen des Simulationssystems herrscht aufgrund ihrer Art (Stadtstrasse, Landstrasse, Autobahn) ggf. eine Geschwindigkeitsbegrenzung.</p>
+
+                <div class="image-placeholder">
+                    <p>[BILD: Figure 2.1 - Simulationsmodell]</p>
+                    <p>Pfad für Bild: images/simulationsmodell.png</p>
+                    <p>Beschreibung: Grafische Darstellung des Simulationsmodells mit Straßen, Kreuzungen und Fahrzeugen</p>
+                </div>
+
+                <h2>Klassenstruktur</h2>
+                <p>Einen Überblick über den Hauptteil der Simulation bietet die Klassenstruktur. Obwohl sicher auch andere Strukturen und Implementationen möglich wären, gehen wir im Praktikum von dieser Struktur aus.</p>
+
+                <div class="image-placeholder">
+                    <p>[BILD: Figure 2.2 - Klassenhierarchie Simulationsobjekt]</p>
+                    <p>Pfad für Bild: images/klassenhierarchie.png</p>
+                    <p>Beschreibung: UML-Diagramm mit Simulationsobjekt als Basisklasse, davon abgeleitet Fahrzeug, Weg und Kreuzung</p>
+                </div>
+
+                <div class="image-placeholder">
+                    <p>[BILD: Figure 2.3 - Ausnahme- und Verhaltensklassen]</p>
+                    <p>Pfad für Bild: images/ausnahme_klassen.png</p>
+                    <p>Beschreibung: UML-Diagramm der Exception-Hierarchie und Verhaltensklassen</p>
+                </div>
+
+                <h2>Wichtiger Hinweis</h2>
+                <p><strong>Bevor Sie mit den Aufgaben beginnen, lesen Sie bitte die gesamte Aufgabenstellung durch, damit Sie wissen, wozu Klassen und Funktionen später genutzt werden.</strong></p>
+
+                <h2>Grafische Ausgabe</h2>
+                <p>Die Funktionen für die grafische Ausgabe werden Ihnen zur Verfügung gestellt. In der Grafik sind PKWs durch rote und Fahrräder durch grüne Punkte dargestellt. Das in der Liste jeweils selektierte Fahrzeug wird blau markiert.</p>
+            `;
+        }
+
+        function getAufgabeHinweiseContent() {
+            return `
+                <h1>3 Hinweise zur Implementierung</h1>
+
+                <h2>3.1 Verwaltung der Verkehrssimulation</h2>
+                <p>Die Aufgaben sind in zwei Aufgabenblöcke unterteilt. Jeder Aufgabenblock soll als Projekt <strong>Aufgabenblock X</strong> (mit X=1,2) angelegt werden und in dem ausgewählten Eclipse Workspace gespeichert werden.</p>
+
+                <p>In der zugehörigen main()-Funktion soll dann für jede Aufgabe eine entsprechende Funktion <strong>vAufgabe_X()</strong> aufgerufen werden, welche die Funktionalität der entsprechenden Aufgabe testet.</p>
+
+                <h2>3.2 Verwaltung der Projekte</h2>
+
+                <h3>3.2.1 Neues Projekt anlegen</h3>
+                <p>Da in der Vergangenheit dabei immer wieder Probleme aufgetreten sind, gibt es an dieser Stelle nun eine detaillierte Anleitung:</p>
+
+                <ol>
+                    <li>Öffnen Sie <strong>File → New → Project</strong></li>
+                    <li>Im geöffneten Fenster wählen Sie <strong>C/C++ → C/C++ Project</strong> aus und bestätigen mit Next</li>
+                    <li>Wählen Sie in dem neuen Fenster nun <strong>All → C++ Managed Build</strong> aus und bestätigen erneut mit Next</li>
+                    <li>Geben Sie unter <strong>Project name</strong> den entsprechenden Projektnamen (z.B. Aufgabenblock 1) ein und wählen als <strong>Project type → Executable → Empty Project</strong> aus. Auf der rechten Seite wählen sie als Toolchain <strong>MinGW GCC</strong> aus. Bestätigen Sie mit Finish</li>
+                </ol>
+
+                <div class="image-placeholder">
+                    <p>[BILD: Figure 3.1 - Neues Projekt anlegen]</p>
+                    <p>Pfad für Bild: images/neues_projekt.png</p>
+                    <p>Beschreibung: Screenshot des Eclipse-Dialogs für neues Projekt</p>
+                </div>
+
+                <h3>3.2.2 C++-Dateien erzeugen</h3>
+                <ol>
+                    <li>Wählen Sie im Project Explorer das entsprechende Projekt aus</li>
+                    <li>Klicken Sie mit der rechten Maustaste auf das Projekt</li>
+                    <li>In dem sich öffnenden Kontextmenü wählen Sie <strong>New</strong>. Nun haben Sie unter anderem die Auswahl zwischen:
+                        <ul>
+                            <li><strong>Header File:</strong> Erzeugt eine leere .h-Datei. Als Template wählen Sie <strong>Default C++ header template</strong></li>
+                            <li><strong>Source File:</strong> Erzeugt eine leere .cpp-Datei. Als Template wählen Sie <strong>Default C++ source template</strong></li>
+                            <li><strong>Class:</strong> Erzeugt eine gesamte Klasse mit Header- und Source-Dateien</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>3.2.3 Inhalte in neue Projekte übernehmen</h3>
+                <ol>
+                    <li>Legen Sie ein neues Projekt an (siehe 3.2.1)</li>
+                    <li>Als Name wählen Sie nun <strong>Aufgabenblock 2</strong></li>
+                    <li>In Ihrem Workspace wird ein neues Unterverzeichnis Aufgabenblock X angelegt</li>
+                    <li>Kopieren Sie die Sourcen aus dem Verzeichnis des alten Projekts in das neue Projektverzeichnis (<strong>wichtig: es sollen nur die *.h und *.cpp Dateien kopiert werden!</strong>)</li>
+                    <li>In Eclipse müssen Sie die neuen Dateien im neuen Projekt laden. Dazu wählen Sie im Project Explorer das neu erstellte Projekt aus und drücken <strong>F5</strong></li>
+                </ol>
+
+                <p><strong>Hinweis:</strong> Um ein Projekt auszuführen, wählen Sie es im Project Explorer aus und wählen nun <strong>Project → Build Project</strong> aus. Als nächstes können Sie das Projekt über <strong>Run → Run as → 2 local C/C++ Application</strong> ausführen.</p>
+
+                <h2>3.3 Namenskonvention</h2>
+                <p>Benutzen Sie bitte in all Ihren Lösungen folgende Präfixe für Variablen und Funktionen:</p>
+
+                <ul>
+                    <li>Instanzvariablen der Klassen werden durch ein <strong>p_</strong> ganz vorne am Variablennamen gekennzeichnet</li>
+                    <li>Darauf folgt ein Buchstabe, der den Typ der Variablen bzw. den Rückgabewert der Funktion beschreibt:
+                        <ul>
+                            <li><strong>i</strong> = int</li>
+                            <li><strong>t</strong> = struct</li>
+                            <li><strong>d</strong> = double</li>
+                            <li><strong>v</strong> = void</li>
+                            <li><strong>b</strong> = bool</li>
+                            <li><strong>s</strong> = string</li>
+                            <li><strong>p</strong> = pointer</li>
+                            <li><strong>e</strong> = enum</li>
+                        </ul>
+                    </li>
+                    <li>Danach folgt dann der eigentliche Variablenname, wobei der erste Buchstabe eines jeden Teilwortes großgeschrieben wird</li>
+                    <li>Eine Funktion wird dadurch gekennzeichnet, dass dem Namen runde Klammern folgen</li>
+                </ul>
+
+                <h3>Beispiele:</h3>
+                <pre><code>p_iID                  // protected/private-Variable vom Typ int
+bIstFertig()           // Funktion, die einen boolschen Wert zurückliefert
+getID()                // getter für die Variable (p_iID)
+vFunktion()            // Funktion, die nichts (void) zurückliefert</code></pre>
+
+                <h2>3.4 Programmierhinweise</h2>
+                <ul>
+                    <li>Implementieren Sie für jede Klasse eine Datei <strong>Klassenname.h</strong> zur Deklaration der Variablen und Funktionen sowie eine Datei <strong>Klassenname.cpp</strong> zur Definition des Codes</li>
+                    <li>Neben den Funktionen, die zur Lösung der Aufgaben vorgegeben werden, können Sie natürlich zusätzlich noch eigene Funktionen implementieren</li>
+                    <li><strong>Kommentieren Sie Ihre Programme ausreichend</strong>, sodass auch Außenstehende (Betreuende) Ihren Code nachvollziehen können. Dieser Punkt geht auch mit in die Bewertung ein</li>
+                    <li>Entscheiden Sie, ob es bei der Definition von Funktionen, Variablen oder Parametern sinnvoll ist, diese als <strong>const</strong> zu deklarieren. Wählen Sie dies, wo immer es möglich ist</li>
+                    <li>Sie können, wenn Sie mehrere Elemente der STL verwenden hinter die jeweiligen Includes <code>using namespace std;</code> schreiben</li>
+                    <li>Alle Dateien, die wir Ihnen im Laufe des Praktikums zur Verfügung stellen, finden Sie im RWTHmoodle Lehr- und Lernbereich des Praktikums unter Vorgabedateien</li>
+                    <li>Denken Sie an die aufeinander aufbauende Programmstruktur der Aufgabe</li>
+                    <li><strong>Testen Sie alle erstellten Klassen und Funktionen</strong> für (weitgehend) alle denkbaren Situationen. Ein einzelner Test zeigt noch nicht die Korrektheit des Programms. Wählen Sie entsprechend mehrere repräsentative Testfälle und begründen Sie Ihre Testauswahl</li>
+                </ul>
+            `;
+        }
+
+        function getAufgabeBlock1Content() {
+            return `
+                <h1>4 Aufgabenblock 1: Grundlagen des Verkehrssystems</h1>
+
+                <h2>4.1 Motivation</h2>
+                <p>In diesem ersten Aufgabenblock werden Klassen für die zu simulierenden Fahrzeuge erstellt, PKWs und Fahrräder, die sich selbst fortbewegen können und simulierbar sind. Ein Mini-Eventhandler ruft eine entsprechende Simulationsschrittmethode aller Fahrzeuge mehrmals auf und gibt den aktuellen Stand der Fahrzeuge nach jedem Schritt auf dem Bildschirm aus.</p>
+
+                <h3>In diesem Aufgabenblock werden folgende Punkte betrachtet:</h3>
+                <ul>
+                    <li>Deklaration und Definition von Klassen</li>
+                    <li>Implementierung von Konstruktoren und Destruktoren</li>
+                    <li>Kapselung von Daten und Zugriff auf private Member</li>
+                    <li>Elementare Verwendung von Smartpointern und static Variablen</li>
+                    <li>Vererbung</li>
+                    <li>Einsatz der STL (string, vector)</li>
+                    <li>Unterscheidung der Klassenbereiche public, private und protected</li>
+                    <li>Unterscheidung einfache und virtuelle Vererbung</li>
+                    <li>Überladen von Operatoren</li>
+                </ul>
+
+                <p><strong>Um sich einen Überblick zu verschaffen, lesen Sie den ersten Aufgabenblock zunächst komplett durch.</strong></p>
+
+                <h2>4.2 Fahrzeuge (Einfache Klassen)</h2>
+
+                <ol>
+                    <li>Starten Sie Eclipse und erstellen Sie in Ihrem Homebereich ein neues Projekt mit dem Namen <strong>Aufgabenblock 1</strong></li>
+                    
+                    <li>Ändern Sie den C++-Dialekt Ihres Projektes auf <strong>C++-17</strong>. Dazu klicken Sie mit der rechten Maustaste auf Ihr Projekt und wählen "Properties" aus. Hier wählen Sie nun "C/C++ Build → Settings" aus. Auf der rechten Seite wählen Sie nun den Reiter "Tool Settings". Hier öffnen Sie nun "GCC C++ Compiler → Dialect". Im rechten Bereich wählen Sie nun unter "Language standard" "ISO C++ 17 (-std=c++17)"</li>
+                    
+                    <li>Implementieren Sie eine Klasse <strong>Fahrzeug</strong> zur Verwaltung verschiedener Fahrzeuge. Die Klasse soll zunächst lediglich private Membervariablen haben, in denen der Name des Fahrzeugs (<code>p_sName</code>) und eine eindeutige ID (<code>p_iID</code>) zu jedem Objekt gespeichert wird. Benutzen Sie für den Namen den Datentyp string.
+                    
+                    <p>Implementieren Sie einen Konstruktor, der einen string als Parameter hat und damit den Namen initialisiert. Weiterhin soll die Klasse mit einem Default-Konstruktor konstruierbar sein. Dann soll der Name leer ("") sein.</p>
+                    
+                    <p>Die ID soll im Konstruktor anhand einer hochzählenden Klassenvariablen <code>p_iMaxID</code> vergeben werden. Nutzen Sie im Konstruktor eine Initialisierungsliste, um die Konstanten einmalig mit einem Wert zu besetzen. Da sich die ID nach der Konstruktion nicht mehr ändert, können Sie diese als const definieren.</p>
+                    
+                    <p>Erzeugen Sie in den Konstruktoren und dem Destruktor eine Ausgabe, welche den Namen und die ID des erzeugten bzw. gelöschten Objekts mit einem entsprechenden Hinweis auf die Operation auf der Standardausgabe cout ausgibt.</p></li>
+                    
+                    <li>Beim Programmieren ist es meist ratsam, schnell ein lauffähiges Programm zu haben. Erzeugen Sie eine neue C++-Datei (main.cpp), die die Funktion <strong>vAufgabe_1()</strong> aufruft und implementieren Sie diese Funktion innerhalb der Datei main.cpp.
+                    
+                    <p>Erzeugen Sie in dieser Funktion einige Elemente statisch (über Deklaration) und einige dynamisch (mit new). Löschen Sie zum Schluss die dynamisch erzeugten Elemente.</p>
+                    
+                    <p>Erzeugen und starten Sie das Programm und testen Sie das korrekte Erzeugen und Löschen der Objekte.</p>
+                    
+                    <p>Im Anschluss erzeugen Sie nun einige Smartpointer. Benutzen Sie dazu <code>make_unique&lt;Fahrzeug&gt;</code> und <code>make_shared&lt;Fahrzeug&gt;</code>, um von beiden Typen je 2 Objekte vom Typ Fahrzeug zu erzeugen.</p>
+                    
+                    <p>Speichern Sie eines der als shared_ptr erzeugten Objekte in einem weiteren shared_ptr. Lassen Sie sich vor und nach der Zuweisung mit <code>use_count</code> die Anzahl der Referenzen ausgeben. Versuchen Sie dasselbe mit unique_ptr.</p>
+                    
+                    <p>Erzeugen Sie zusätzlich einen <code>vector&lt;unique_ptr&lt;Fahrzeug&gt;&gt;</code>. Speichern Sie die oben erzeugten Fahrzeuge in diesem Vektor. Welche Fahrzeuge können Sie dort speichern? Wie müssen Sie den Besitzwechsel anzeigen? Löschen Sie danach den Vektor mit clear.</p>
+                    
+                    <p>Beobachten Sie mit dem Debugger, was dort passiert und wann die Objekte durch Aufruf des Destruktors gelöscht werden.</p>
+                    
+                    <p>Erzeugen Sie nun zusätzlich auch einen <code>vector&lt;shared_ptr&lt;Fahrzeug&gt;&gt;</code>. Welche Fahrzeuge können Sie dort speichern? Fügen Sie dem Vektor zwei Fahrzeuge hinzu, eins mit und eins ohne move. Lassen Sie die Anzahl der Referenzen ausgeben.</p>
+                    
+                    <p><strong>Bitte notieren Sie beim Debuggen, in welchen Zeilen die jeweiligen Objekte gelöscht werden.</strong></p></li>
+                    
+                    <li>Erweitern Sie die Klasse um Membervariablen für die Maximalgeschwindigkeit des Fahrzeugs (<code>p_dMaxGeschwindigkeit</code>), die bisher zurückgelegte Gesamtstrecke (<code>p_dGesamtStrecke</code>), die gesamte Fahrzeit des Objektes (<code>p_dGesamtZeit</code>) und die Zeit, zu der das Fahrzeug zuletzt simuliert wurde (<code>p_dZeit</code>).
+                    
+                    <p>Fügen Sie einen weiteren Konstruktor hinzu, der einen Namen und die maximale Geschwindigkeit als Parameter bekommt. Beachten Sie hier, dass die Geschwindigkeit immer positiv sein soll. Prüfen Sie dies in der Initialisierungsliste mit Hilfe des ?-Operators.</p></li>
+                    
+                    <li>Schreiben Sie eine Memberfunktion <strong>vAusgeben()</strong>. Diese Memberfunktion soll spezifische Fahrzeugdaten ausgeben. Machen Sie innerhalb dieser Funktion keine Aufrufe von <code>cout::endl</code>, sondern programmieren Sie die Zeilenwechsel in der Hauptfunktion.
+                    
+                    <p>Die Ausgabe soll so formatiert werden, dass unter einer Überschrift die Daten tabellarisch aufgelistet werden:</p>
+                    <pre><code>ID    Name       MaxGeschwindigkeit    Gesamtstrecke
+----------------------------------------------------
+1     PKW1       40.00                 0.00
+2     AUTO3      30.00                 0.00</code></pre>
+                    
+                    <p>Die Überschrift soll durch eine Klassenfunktion <strong>void vKopf()</strong> ausgegeben werden. Benutzen Sie für die Formatierung keine feste Anzahl von Leerzeichen, sondern die Input-Output-Manipulatoren der Standard C++ Bibliothek (&lt;iomanip&gt;).</p>
+                    
+                    <p><strong>Beachte:</strong> Bei Verwendung von setiosflags() zum Setzen der Ausgabeausrichtung sollte zunächst die andere Ausrichtung mittels resetiosflags() zurückgesetzt werden.</p></li>
+                    
+                    <li>Bevor die Simulationsfunktion der Fahrzeuge geschrieben werden kann, muss erst noch eine globale Uhr programmiert werden. Zur Realisierung dieser Uhr definieren Sie eine globale Variable <strong>dGlobaleZeit</strong>, die Sie mit 0.0 initialisieren.
+                    
+                    <p><strong>Beachte:</strong> Zur Benutzung dieser Variablen innerhalb anderer Klassen muss sie der Klasse erst mittels der extern-Deklaration bekannt gemacht werden.</p></li>
+                    
+                    <li>Schreiben Sie nun die Memberfunktion <strong>Fahrzeug::vSimulieren()</strong>, welche dafür sorgt, dass die Fahrzeuge sich fortbewegen. Dazu wird mit Hilfe der globalen Uhr ermittelt, wieviel Zeit seit dem letzten Simulationsschritt vergangen ist, und entsprechend dieser Information wird der Zustand des Fahrzeugs aktualisiert (u.a. Gesamtstrecke um die im ermittelten Zeitraum aufgrund der Geschwindigkeit fahrbare Strecke erhöhen).
+                    
+                    <p>Lassen Sie das Fahrzeug mit maximaler Geschwindigkeit fahren. Sorgen Sie durch einen Zeitvergleich dafür, dass ein Fahrzeug in einem Zeitschritt nur einmal bearbeitet wird, auch wenn es versehentlich zweimal innerhalb eines Zeitschritts aufgerufen wird. Aktualisieren Sie auch die Gesamtfahrzeit und die letzte Abfertigungszeit des Objektes.</p></li>
+                    
+                    <li>Schreiben Sie eine neue Hauptfunktion <strong>vAufgabe_1a()</strong>. Lesen Sie Namen und Maximalgeschwindigkeit für 3 Fahrzeuge aus der Konsole ein, erzeugen Sie diese mit <code>make_unique&lt;Fahrzeug&gt;</code> und speichern sie diese in einem Vektor.
+                    
+                    <p>Simulieren Sie Fahrzeuge über eine gewisse Zeitspanne. Erhöhen Sie dazu in einer Schleife die globale Uhr jeweils um einen Zeittakt und rufen Sie in der Schleife die Simulationsfunktion und die Ausgabefunktion der Fahrzeuge auf. Wählen Sie als Zeittakt auch Bruchteile von Stunden.</p></li>
+                </ol>
+
+                <h2>4.3 Fahrräder und PKW (Unterklassen)</h2>
+
+                <ol>
+                    <li>Implementieren Sie zwei neue Klassen <strong>PKW</strong> und <strong>Fahrrad</strong>, die jeweils von der Basisklasse Fahrzeug abgeleitet werden. Strukturieren Sie die Klasse Fahrzeug dementsprechend um. Überlegen Sie, welche Variablen private bleiben sollten und welche protected werden. Überlegen Sie weiterhin, welche Funktionen virtual werden. Benutzen sie synchron dazu das Schlüsselwort override für diese Funktionen in den abgeleiteten Klassen.</li>
+                    
+                    <li>Da Fahrräder mit Muskelkraft und PKWs mit Motoren betrieben werden, benötigt die Klasse PKW zusätzliche PKW-spezifische Variablen. Fügen Sie der Klasse PKW die Variablen <code>p_dVerbrauch</code> (Liter/100km), <code>p_dTankvolumen</code> sowie <code>p_dTankinhalt</code> (Liter) hinzu.
+                    
+                    <p>Ergänzen Sie die Klasse um einen entsprechenden Konstruktor, mit dem Sie zusätzlich zu den fahrzeugspezifischen Membervariablen auch Verbrauch und (optional, Default=55 l) Tankvolumen setzen können. Der Tankinhalt wird jeweils auf die Hälfte des Tankvolumens initialisiert.</p>
+                    
+                    <p>Des Weiteren schreiben Sie eine Funktion <strong>dTanken</strong> mit optionalem Parameter dMenge zum nachträglichen Betanken der PKWs. Wird kein Wert übergeben (Defaultparameter) soll vollgetankt werden, ansonsten wird der gewünschte Wert getankt. Geben Sie jeweils die tatsächlich getankte Menge zurück. Implementieren Sie die Funktion in der Klassenhierarchie so, dass sie für alle Fahrzeuge aufrufbar ist. Fahrräder und Fahrzeuge ohne Tank tanken bekanntlich nicht, d.h. die Funktion macht nichts und gibt immer 0 Liter zurück.</p>
+                    
+                    <p>Bei jedem Simulationsschritt soll der Tankinhalt aktualisiert werden, bis der Tank leer ist. PKWs ohne Tankinhalt sollen liegenbleiben bis wieder nachgetankt wird. Danach sollen sie normal weiterfahren.</p>
+                    
+                    <p>Gesamtverbrauch und aktueller Tankinhalt sollen außerdem noch in vAusg
+
+void f(B* pb, D* pd) {
+    D* pd2 = static_cast&lt;D*&gt;(pb);  // unsicher, pb zeigt evtl. nicht auf D
+    B* pb2 = static_cast&lt;B*&gt;(pd);  // sicher
+}
+
+// Konvertierung zwischen fundamentalen Typen:
+int i = 10;
+double d = static_cast&lt;double&gt;(i);</code></pre>
+
+                <h3>dynamic_cast</h3>
+                <p>Der dynamic_cast-Operator prüft zur Laufzeit, ob die Umwandlung sinnvoll ist:</p>
+
+                <pre><code>class B {/*...*/ };
+class D : public B {/*...*/ };
+class E : public B {/*...*/ };
+
+void f(B* pb, D* pd) {
+    D* pd2 = dynamic_cast&lt;D*&gt;(pb);  // pb zeigt auf D?
+    B* pb2 = dynamic_cast&lt;B*&gt;(pd);  // sicher
+}</code></pre>
+            `;
+        }
+
+        function getAufgabeBlock2Content() {
+            return `
+                <h1>5 Aufgabenblock 2: Erweiterung des Verkehrssystems</h1>
+
+                <h2>5.1 Motivation</h2>
+                <p>In diesem Aufgabenblock werden folgende Punkte betrachtet:</p>
+                <ul>
+                    <li>Erweiterung einer Klassenhierarchie</li>
+                    <li>Abstrakte Klassen und rein virtuelle Methoden</li>
+                    <li>Aufzählungsklasse</li>
+                    <li>Unterscheidung und Nutzung unique_ptr, shared_ptr, weak_ptr</li>
+                    <li>Templateklassen nutzen und erstellen</li>
+                    <li>Exception handling und eigene Exceptionklassen</li>
+                    <li>Nutzung einer externen Bibliothek</li>
+                    <li>Erzeugung gleichverteilter Zufallszahlen</li>
+                </ul>
+
+                <p>In diesem zweiten Aufgabenblock wird die Klassenhierarchie um eine Klasse Weg erweitert. Da diese Klasse einige Eigenschaften mit Fahrzeugen gemeinsam hat (Name, Simulationszeit, Simulationsfunktion, Ausgabefunktion usw.), ist es sinnvoll, die Klassenhierarchie um eine abstrakte Oberklasse zu erweitern und sowohl Weg, als auch Fahrzeug von dieser Klasse abzuleiten.</p>
+
+                <p><strong>Um sich einen Überblick zu verschaffen, lesen Sie den zweiten Aufgabenblock zunächst komplett durch.</strong></p>
+
+                <h2>5.2 Kopieren des Projektes</h2>
+                <ol>
+                    <li>Erzeugen Sie ein neues leeres Projekt mit dem Namen <strong>Aufgabenblock 2</strong>. Kopieren Sie alle Sourcen (nur *.h und *.cpp Dateien) aus Aufgabenblock 1 und machen Sie diese Dateien dem neuen Projekt bekannt (s. Kapitel 3.2.3).</li>
+                    
+                    <li>Ändern Sie den C++-Dialekt Ihres Projektes auf C++-17 (siehe Aufgabenblock 1)</li>
+                </ol>
+
+                <h2>5.3 Simulationsobjekte und Wege</h2>
+                <ol>
+                    <li>Als erstes soll eine neue abstrakte Oberklasse <strong>Simulationsobjekt</strong> geschaffen werden, welche die gemeinsamen Eigenschaften von Fahrzeug und einer neuen Klasse Weg zusammenfasst. Fahrzeuge und Wege sind Simulationsobjekte, die einen Namen, eine ID und eine lokale Zeit besitzen. Sie können simuliert und ausgegeben werden.
+                    
+                    <p>Integrieren Sie Fahrzeug in diese neue Klassenhierarchie, indem Sie die Variablen für Name, ID und Simulationszeit sowie alle Funktionen zur gemeinsamen Nutzung von Fahrzeug und Weg aus der Klasse Fahrzeug in die Klasse Simulationsobjekt übertragen.</p>
+                    
+                    <p>Simulationsobjekt ist eine abstrakte Klasse, besitzt also mindestens eine rein virtuelle Methode. Überlegen Sie, welche Funktion hierzu am besten geeignet ist. Welche Methoden/Variablen müssen private, protected oder public deklariert werden?</p>
+                    
+                    <p>Verbieten Sie auch hier den Copy-Konstruktor. Implementieren Sie einen Vergleichsoperator (<strong>operator==()</strong>), der genau dann true liefert, wenn die IDs übereinstimmen.</p></li>
+                    
+                    <li>Richten Sie die Klasse <strong>Weg</strong> als Unterklasse von Simulationsobjekt ein. Wege haben zusätzlich zu den geerbten Eigenschaften eine Länge in km (<code>p_dLaenge</code>), eine Liste von Fahrzeugen (<code>p_pFahrzeuge</code>), welche sich aktuell auf dem Weg befinden, und eine maximal zulässige Geschwindigkeit (<code>p_eTempolimit</code>). Die Liste beinhaltet unique_ptr auf Fahrzeuge. Zur Implementierung der Liste benutzen Sie den Container list aus der STL.
+                    
+                    <p>Es soll für Wege drei unterschiedliche Kategorien (Innerorts, Landstraße und Autobahn) mit unterschiedlichem Tempolimit (50km/h, 100km/h und Unbegrenzt) geben. Für die Autobahngeschwindigkeit können Sie die Konstante <code>std::numeric_limits&lt;int&gt;::max()</code> verwenden. Definieren Sie dazu in Tempolimit.h einen eigenen Datentyp <strong>Tempolimit</strong> als Aufzählungsklasse (enum class) und eine Konvertierungsfunktion getTempolimit in Weg, die für p_eTempolimit die entsprechende Geschwindigkeit als double zurückgibt.</p>
+                    
+                    <p>Weg soll einen Standardkonstruktor und einen Konstruktor mit Namen und Länge des Weges, sowie optionalem Tempolimit (default unbegrenzt) als Parameter haben.</p>
+                    
+                    <p>Außerdem soll die Funktion <strong>vSimulieren()</strong> so implementiert werden, dass beim Aufruf alle auf dem Weg befindlichen Fahrzeuge simuliert werden. Setzen Sie hierzu eine Range-basierte Schleife ein, die über die gesamte list iteriert.</p>
+                    
+                    <p><strong>Beachte:</strong> Wenn zwei Klassen jeweils Variablen der anderen als Element enthalten, können Sie nicht in beiden Headerdateien jeweils die andere Headerdatei inkludieren. Es reicht, in den Headerdateien jeweils die andere Klasse zu deklarieren, also einfach <code>class Fahrzeug;</code> bzw. <code>class Weg;</code> einzufügen. In den cpp-Dateien müssen aber dann die entsprechenden Headerdateien eingebunden werden.</p>
+                    
+                    <p>Implementieren Sie eine Funktion <strong>vAusgeben</strong> für Weg. Die Funktion soll die Implementierung von Simulationsobjekt für ID und Name verwenden und selbst die Länge des Weges und in Klammern die Namen der auf dem Weg befindlichen Fahrzeuge ausgeben. Definieren Sie auch hier eine Klassenfunktion vKopf() zur Ausgabe einer Überschrift.</p></li>
+                    
+                    <li>Testen Sie Ihr altes Hauptprogramm. Es sollte noch unverändert funktionieren. In <strong>vAufgabe_4()</strong> testen Sie zusätzlich die neue Klasse Weg, indem Sie einen Weg erzeugen und ihn mit dem &lt;&lt;-Operator auf die Standardausgabe ausgeben.</li>
+                </ol>
+
+                <h2>5.4 Parkende und fahrende Fahrzeuge</h2>
+                <ol>
+                    <li>Damit man für ein Fahrzeug verschiedene Verhaltensweisen realisieren kann, wird die Klasse Fahrzeug um eine Membervariable <code>p_pVerhalten</code> erweitert, die eine Instanz der Klasse <strong>Verhalten</strong> verwaltet. Überlegen Sie, welche Art von Smartpointer für p_pVerhalten gewählt werden sollte.
+                    
+                    <p>Unter Verhalten verstehen wir, dass zwischen fahrenden und parkenden Fahrzeugen unterschieden werden kann.</p>
+                    
+                    <p>Da das Verhalten u.a. vom jeweiligen Weg abhängt, bekommt die Klasse Verhalten einen Konstruktor, der eine Referenz auf einen Weg als Parameter bekommt und speichert. Weiterhin soll eine Funktion <strong>double dStrecke(Fahrzeug& aFzg, double dZeitIntervall)</strong> angeboten werden, die ermittelt, wie weit ein Fahrzeug innerhalb des übergebenen Zeitintervalls fahren kann, ohne das Wegende zu überschreiten.</p>
+                    
+                    <p>Die bisherige Berechnung der aktuellen Teilstrecke in Fahrzeug::vSimulieren wird durch den Aufruf der Funktion dStrecke ersetzt.</p>
+                    
+                    <p>Bei jedem Start eines Fahrzeugs auf einem neuen Weg soll nun eine Instanz von Verhalten erzeugt und in Fahrzeug gespeichert werden. Dies geschieht am besten durch eine neue Memberfunktion <strong>Fahrzeug::vNeueStrecke(Weg&)</strong>, die ein geeignetes Objekt erzeugt und in p_pVerhalten speichert.</p>
+                    
+                    <p>Da Fahrzeuge jetzt nacheinander auf verschiedenen Wegen fahren sollen, führen wir hier eine zusätzliche Membervariable <code>p_dAbschnittStrecke</code> in Fahrzeug ein. Diese speichert immer nur die auf dem aktuellen Weg zurückgelegte Strecke.</p></li>
+                    
+                    <li>Schreiben Sie nun eine Funktion <strong>Weg::vAnnahme(unique_ptr&lt;Fahrzeug&gt;)</strong>, die ein Fahrzeug auf dem Weg annimmt. Dazu muss es in die Liste der Fahrzeuge eingetragen werden. Da ein unique_ptr nicht kopiert werden kann, muss der Pointer auf das Fahrzeug mit move verschoben werden.</p>
+                    
+                    <li>Testen Sie Ihre neue Klasse in <strong>vAufgabe_5()</strong>, indem Sie einen Weg und drei Fahrzeuge erzeugen, diese auf den Weg setzen und den Weg simulieren.</li>
+                    
+                    <li>Der Simulation sollen nun parkende Fahrzeuge hinzugefügt werden. Parkende Fahrzeuge benötigen ein anderes Verhaltensmuster. Erweitern Sie dazu die Klasse Verhalten zu einer Klassenhierarchie, wobei Sie zwei Klassen <strong>Fahren</strong> und <strong>Parken</strong> von Verhalten ableiten.
+                    
+                    <p>Verhalten soll als abstrakte Oberklasse implementiert werden. Fahren soll funktionieren wie vorher Verhalten. Die Klasse Parken hat einen Konstruktor, der zusätzlich zum Weg den Startzeitpunkt des Fahrzeugs übergeben bekommt. Parken::dStrecke() liefert bis zum Erreichen des Startzeitpunktes den Wert 0.0 zurück. Wenn die Startzeit erreicht wurde, soll das Programm eine entsprechende Meldung ausgeben.</p>
+                    
+                    <p>Auf einem Weg sollen sich sowohl parkende als auch fahrende Fahrzeuge befinden können. Um beide zu unterscheiden, soll die Funktion vAnnahme(unique_ptr&lt;Fahrzeug&gt;) durch eine weitere Funktion vAnnahme(unique_ptr&lt;Fahrzeug&gt;, double) überladen werden.</p>
+                    
+                    <p>Überladen Sie entsprechend auch die Funktion Fahrzeug::vNeueStrecke. Fügen Sie fahrende Fahrzeuge hinten in die Liste an, parkende Fahrzeuge vorne.</p></li>
+                    
+                    <li>Modifizieren Sie vAufgabe_5 mehrfach so, dass das Programm beim Starten bzw. am Streckenende entsprechende Meldungen ausgibt.</li>
+                </ol>
+
+                <h2>5.5 Losfahren, Streckenende (Exception Handling)</h2>
+                <ol>
+                    <li>Sie haben bisher an zwei Stellen im Programm nur eine Meldung für das Losfahren und das Streckenende. Stattdessen soll nun jeweils eine Ausnahme (Exception) geworfen werden (throw), die dann in der Simulationsmethode des Weges aufgefangen (catch) und abgearbeitet werden kann.
+                    
+                    <p>Leiten Sie dazu zwei Klassen <strong>Losfahren</strong> und <strong>Streckenende</strong> von einer abstrakten Klasse <strong>Fahrausnahme</strong> ab. Zusätzlich leiten sie die Klasse Fahrausnahme von der Klasse exception aus der C++ Standardbibliothek ab.</p>
+                    
+                    <p>Fahrausnahme soll eine Referenz auf Fahrzeug und eine Referenz auf Weg als Membervariable besitzen. Weiterhin hat die Klasse eine rein virtuelle Funktion <strong>vBearbeiten()</strong>. Geben Sie in den beiden Bearbeitungsmethoden der Unterklassen vorerst nur Fahrzeug, Weg und Art der Ausnahme aus.</p>
+                    
+                    <p>Beim Auftreten der Ausnahmen sollen nun die entsprechenden Objekte geworfen und in der Simulationsroutine des Weges aufgefangen werden. Nachdem ein Ausnahmeobjekt gefangen wurde, wird für dieses einfach nur die Bearbeitungsfunktion vBearbeiten() ausgeführt.</p>
+                    
+                    <p><strong>Beachte:</strong> Fangen Sie beide Ausnahmen mit nur einem catch-Block. Wieso ist das möglich?</p></li>
+                    
+                    <li>Über die Klasse Verhalten haben Fahrzeuge Kenntnis vom befahrenen Weg. Berücksichtigen Sie die Maximalgeschwindigkeit (Weg::p_eTempolimit), die für den befahrenen Weg, aber nur für PKW gilt, indem Sie die Methode PKW::dGeschwindigkeit() entsprechend implementieren.</li>
+                    
+                    <li>Testen Sie nun mit einer Funktion <strong>vAufgabe_6</strong> die gerade implementierte Ausnahmebehandlung und das Tempolimit. Erzeugen Sie dazu zwei Wege (mindestens einer mit Tempolimit) und setzen Sie fahrende und parkende Fahrzeuge auf diese Wege und fertigen beide Wege ab.
+                    
+                    <p><strong>Beachte:</strong> Die Ausnahmen Streckenende und Losfahren werden beim Erreichen des Wegendes bzw. des Startzeitpunkte bei jedem folgenden Simulationsschritt erneut geworfen. Die entsprechenden Meldungen kommen also mehrfach. Da wir noch keine Fahrzeuge von der Liste entfernen oder umsetzen, ist dieses Verhalten kein Fehler.</p></li>
+                    
+                    <li><strong>Aufgabe zur Nutzung des Debuggers:</strong> Kontrollieren Sie mit Hilfe des Debuggers, ob das Losfahren immer zum richtigen Zeitpunkt auftritt. Lassen Sie dazu ein Fahrzeug beim Zeitpunkt 3.0 losfahren. Überprüfen Sie den Startzeitpunkt einmal bei einem Zeittakt der globalen Zeit von 0.25 und einmal bei 0.3.</li>
+                </ol>
+
+                <h2>5.6 Grafische Ausgabe</h2>
+                <ol>
+                    <li>Um die Simulation anschaulicher zu machen, soll sie nun grafisch dargestellt werden. Dazu wurde ein Client/Server-Modell entwickelt, bei dem der Server vom Client über TCP/IP Kommandos empfängt und diese dann in eine grafische Darstellung umsetzt.
+                    
+                    <p>Die Grafikschnittstelle wird Ihnen durch die Klassen SimuClient und SimuClientSocket zur Verfügung gestellt. Der grafische Server wird über die Java-Datei SimuServer.jar zur Verfügung gestellt. Um die Grafikschnittstelle nutzen zu können, kopieren Sie zunächst die erforderlichen Dateien (SimuClient.h, Simuclient.cpp, SimuClientSocket.h, SimuClientSocket.cpp, SimuServer.jar) in Ihr Projektverzeichnis.</p>
+                    
+                    <h3>Grafikschnittstelle - Funktionen:</h3>
+                    <ul>
+                        <li><strong>bInitialisiereGrafik(int GroesseX, int GroesseY)</strong>: Verbindung zum Grafikserver herstellen und Größe des Fensters initialisieren</li>
+                        <li><strong>vSetzeZeit(double Zeit)</strong>: Globale Zeit in der Titelzeile anzeigen</li>
+                        <li><strong>bZeichneStrasse(string NameHin, string NameRueck, int Laenge, int AnzahlKoord, int[] Koordinaten)</strong>: Zeichnet eine Straße aus Hin- und Rückweg</li>
+                        <li><strong>bZeichnePKW(string PKWName, string WegName, double RelPosition, double KmH, double Tank)</strong>: Zeichnet PKW auf Weg</li>
+                        <li><strong>bZeichneFahrrad(string FahrradName, string WegName, double RelPosition, double KmH)</strong>: Zeichnet Fahrrad auf Weg</li>
+                        <li><strong>BeendeGrafik()</strong>: Verbindung trennen</li>
+                        <li><strong>vSleep(int zeit_ms)</strong>: Programmausführung verzögern</li>
+                    </ul></li>
+                    
+                    <li>Erweitern Sie vAufgabe_6() so, dass die Grafikausgabe getestet werden kann. Wählen Sie als Länge der beiden Wege jeweils 500km und fassen Sie diese grafisch zu einer Straße zusammen (Hin- und Rückweg).</li>
+                    
+                    <li>Um beim Zeichen, abhängig vom Fahrzeugobjekt-Typ, die korrekte Zeichenfunktion aufzurufen, soll für PKW und Fahrrad eine Funktion <strong>vZeichnen(const Weg&) const</strong> implementiert werden. Dazu wird in Fahrzeug die Funktion virtuell deklariert und in der jeweiligen Unterklasse überschrieben.</li>
+                    
+                    <li>Lassen Sie die Fahrzeuge nach jeder Simulation in Weg zeichnen.</li>
+                    
+                    <li>Führen Sie Ihre Simulation aus. Um die Simulation besser verfolgen zu können, rufen Sie die Funktion vSleep in Ihrer Schleife auf (z.B. 100ms).</li>
+                </ol>
+
+                <h2>5.7 Verzögertes Update (Template)</h2>
+                <ol>
+                    <li>Wenn die Ausnahmesituationen eintreten, soll nun auch die entsprechende Aktion ausgeführt werden. Um Probleme mit ungültigen Iteratoren zu vermeiden, soll eine allgemeine Templateklasse <strong>VListe</strong> im Namensbereich <strong>vertagt</strong> implementiert werden, die das Einfügen und Löschen von Elementen bis zum Aufruf einer Methode vAktualisieren aufschiebt.
+                    
+                    <p>Die Dateien vertagt_liste.h und vertagt_aktion.h werden vorgegeben. Ergänzen Sie in diesen Dateien alle Bereiche, die mit [...] gekennzeichnet sind.</p>
+                    
+                    <p>Die Klasse VListe hat zwei Datenelemente:</p>
+                    <ul>
+                        <li>die Liste mit den eigentlichen Objekten (<code>list&lt;T&gt; p_objekte</code>)</li>
+                        <li>eine Liste zum Zwischenspeichern der noch auszuführenden Aktionen (<code>list&lt;unique_ptr&lt;VAktion&gt;&gt; p_aktionen</code>)</li>
+                    </ul>
+                    
+                    <p>Wir unterscheiden bei der Liste zwischen Lese- und Schreibfunktionen. Leseoperationen können sofort auf der eigentlichen Liste durchgeführt werden, Schreiboperationen müssen als Aktion zwischengespeichert werden.</p>
+                    
+                    <p>Folgende Funktionen sollen für die vertagte Liste implementiert werden:</p>
+                    <ul>
+                        <li>iterator begin()</li>
+                        <li>iterator end()</li>
+                        <li>bool empty()</li>
+                        <li>void push_front(T obj)</li>
+                        <li>void push_back(T obj)</li>
+                        <li>void erase(iterator it)</li>
+                        <li>void vAktualisieren()</li>
+                        <li>void clear()</li>
+                    </ul></li>
+                    
+                    <li>Testen Sie in <strong>vAufgabe_6a()</strong> Ihre neue VListe mit ganzzahligen Zufallszahlen zwischen 1 und 10. Für Zufallszahlen verwenden Sie:
+                    <pre><code>#include &lt;random&gt;
+static std::mt19937 device(0);  // seed = 0 für Reproduzierbarkeit
+std::uniform_int_distribution&lt;int&gt; dist(1, 10);
+int zuf = dist(device);</code></pre></li>
+                    
+                    <li>Ersetzen Sie nun bei der Fahrzeugliste in Weg die einfache Liste durch eine entsprechende vertagt::VListe. Sie sollten vor und nach jeder Simulation von Weg die Liste aktualisieren.</li>
+                </ol>
+
+                <h2>5.8 Aufbau des Verkehrssystems</h2>
+                <ol>
+                    <li>Bisher besteht das Verkehrsnetz nur aus isolierten Wegen. Die Wege sollen nun mittels <strong>Kreuzungen</strong> verbunden werden. Da die Infrastruktur gut ausgebaut ist, soll es keine Einbahnstraßen geben und eine Straße jeweils aus Hin- und Rückweg bestehen.
+                    
+                    <p>Erweitern Sie die Klassenhierarchie um die Klasse Kreuzung die von Simulationsobjekt abgeleitet wird. Die Klasse Kreuzung speichert in einer Liste p_pWege alle von ihr wegführenden Wege und bekommt eine Membervariable <code>p_dTankstelle</code>. Die Variable speichert das Volumen, das einer Kreuzung zum Auftanken zur Verfügung steht.</p>
+                    
+                    <p>Schreiben Sie eine statische Methode <strong>Kreuzung::vVerbinde(...)</strong>, welcher der Namen des Hin- und Rückweges, die Weglänge, die Start und die Zielkreuzung sowie die gültige Geschwindigkeitsbegrenzung als Parameter übergeben wird.</p>
+                    
+                    <p>Weiterhin soll in Kreuzung die Funktion <strong>vTanken(Fahrzeug&)</strong> implementiert werden, die ggf. das übergebene Fahrzeug volltankt und den Inhalt der Tankstelle aktualisiert.</p>
+                    
+                    <p>Implementieren Sie eine Methode <strong>Kreuzung::vAnnahme(unique_ptr&lt;Fahrzeug&gt;, double)</strong>, die Fahrzeuge annimmt und diese parkend auf den ersten abgehenden Weg stellt. Nun implementieren Sie eine Funktion <strong>Kreuzung::vSimulieren()</strong>, die alle von dieser Kreuzung abgehenden Wege simuliert.</p></li>
+                    
+                    <li>Beim Weiterleiten von Fahrzeugen sollen aus den wegführenden Wegen der Kreuzung zufällig einer ausgewählt werden. Implementieren Sie dazu eine Funktion <strong>shared_ptr&lt;Weg&gt; Kreuzung::pZufaelligerWeg(Weg&)</strong>, die als Parameter eine Referenz auf den Weg enthält, über den die Kreuzung erreicht wurde. Der Rückgabewert soll der ausgewählte Weg für das Fahrzeug sein.
+                    
+                    <p>Bauen Sie diese Funktion nun in die Bearbeitungsfunktion von Streckenende ein, damit ein Fahrzeug, das am Ende des Weges angekommen ist, fahrend auf einen so gefundenen Weg umgesetzt wird. Beim Umsetzen soll folgende Ausgabe erfolgen:</p>
+                    
+                    <pre><code>ZEIT: [Zeitpunkt der Umsetzung]
+KREUZUNG: [Name der Kreuzung] [Inhalt der Tankstelle]
+WECHSEL: [Name alter Weg] → [Name neuer Weg]
+FAHRZEUG: [Daten des Fahrzeugs]</code></pre></li>
+                    
+                    <li>Testen Sie die bisherige Klasse Kreuzung in <strong>vAufgabe_7()</strong>, indem Sie ein Verkehrsnetz entsprechend der Vorgabe aufbauen und darin Fahrzeuge über die Kreuzung Kr1 annehmen.
+                    
+                    <div class="image-placeholder">
+                        <p>[BILD: Figure 5.4 - Koordinaten des Verkehrssystems]</p>
+                        <p>Pfad für Bild: images/verkehrssystem_koordinaten.png</p>
+                        <p>Beschreibung: Grafische Darstellung mit Koordinaten für Kreuzungen und Straßen</p>
+                    </div>
+                    
+                    <p>Für die grafische Darstellung der Kreuzung steht folgende Methode zur Verfügung:</p>
+                    <pre><code>void bZeichneKreuzung(int posX, int posY);</code></pre>
+                    
+                    <p>Setzen Sie die Tankkapazität für Kreuzung Kr2 auf 1000l und simulieren Sie die Kreuzungen. Alle anderen Kreuzungen haben keine Tankstelle (Tankkapazität = 0).</p></li>
+                </ol>
+            `;
+        }
+
+        // Initialize
+        updateSidebar();
+        updateContent();
+
+        // Hash initialization
+        (function initFromHash(){
+            const hash = location.hash.slice(1);
+            if (!hash) return;
+            const parts = hash.split('/');
+            const main = parts[0];
+            const section = parts[1] || '';
+            if (main === 'skript' || main === 'aufgabenstellung' || main === 'glossar') {
+                currentMain = main;
+                document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.textContent.trim().toLowerCase() === main) btn.classList.add('active');
+                });
+            }
+            if (section) currentSection = section;
+            updateSidebar();
+            updateContent();
+        })();
+
+    </script>
+</body>
+</html>
